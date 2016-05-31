@@ -1,0 +1,61 @@
+STEP1:
+  INCAR:
+    EDIFF: -1.0e-06
+    EDIFFG: -0.1
+    IBRION: 1
+    ISIF: 3
+    'ISMEAR:': -5
+    LREAL: AUTO
+    NELMIN: 5
+    NSW: 200
+    PREC: ACCURATE
+    SIGMA: 0
+  POTCAR:
+    C: C
+    H: H
+    Mg: Mg_sv
+    O: O
+STEP2:
+  INCAR:
+    ADDGRID: true
+    EDIFF: -1.0e-08
+    EDIFFG: -0.01
+    IBRION: 3
+    IOPT: 7
+    ISIF: 3
+    'ISMEAR:': -5
+    LREAL: AUTO
+    NELMIN: 5
+    NSW: 200
+    POTIM: 0
+    PREC: HIGH
+    ROPT_PER_ATOM: -0.0001
+    SIGMA: 0
+  POTCAR:
+    C: C_h
+    H: H_h
+    Mg: Mg_sv
+    O: O_h
+STEP3:
+  INCAR:
+    ADDGRID: true
+    EDIFF: -1.0e-08
+    EDIFFG: -0.002
+    ENAUG_ENHANCE_RATIO: 0.75
+    ENCUT_ENHANCE_RATIO: 0.75
+    IBRION: 3
+    IOPT: 7
+    ISIF: 3
+    'ISMEAR:': -5
+    LREAL: AUTO
+    NELMIN: 5
+    NSW: 100
+    POTIM: 0
+    PREC: HIGH
+    ROPT_PER_ATOM: -0.0001
+    SIGMA: 0
+  POTCAR:
+    C: C_h
+    H: H_h
+    Mg: Mg_sv
+    O: O_h
