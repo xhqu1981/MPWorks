@@ -1,33 +1,38 @@
-from pymatgen.io.vasp import Poscar
-from mpworks.firetasks.elastic_tasks import SetupElastConstTask, SetupFConvergenceTask, SetupDeformedStructTask
-
-__author__ = 'weichen'
-
-from fireworks.core.firework import Firework, Workflow
-from fireworks.utilities.fw_utilities import get_slug
-from mpworks.firetasks.custodian_task import get_custodian_task
-from mpworks.firetasks.snl_tasks import AddSNLTask
-from mpworks.firetasks.vasp_io_tasks import VaspCopyTask, VaspWriterTask, \
-    VaspToDBTask
-from mpworks.firetasks.vasp_setup_tasks import SetupGGAUTask
-from mpworks.snl_utils.mpsnl import get_meta_from_structure, MPStructureNL
-from mpworks.workflows.wf_settings import QA_DB, QA_VASP, QA_CONTROL
-from pymatgen import Composition
-from mpworks.workflows import snl_to_wf
-from mpworks.firetasks.elastic_tasks import update_spec_force_convergence
 from collections import defaultdict
+
+from fireworks import Firework
+from fireworks.utilities.fw_utilities import get_slug
+from pymatgen import Composition
+
+from mpworks.firetasks.snl_tasks import AddSNLTask
+from mpworks.snl_utils.mpsnl import MPStructureNL
+from mpworks.workflows.wf_settings import QA_DB
+
+__author__ = 'Xiaohui Qu'
+__copyright__ = 'Copyright 2016, The Materials Project'
+__version__ = '0.1'
+__maintainer__ = 'Xiaohui Qu'
+__email__ = 'xhqu1981@gmail.com'
+__date__ = 'May 31, 2016'
+
+
+"""
+This is modified from Wei Chen's snl_to_wf_elastic.
+"""
 
 
 def snl_to_wf_elastic(snl, parameters):
     # parameters["user_vasp_settings"] specifies user defined incar/kpoints parameters
     fws = []
     connections = defaultdict(list)
+    cur_fwid = 0
     parameters = parameters if parameters else {}
 
     snl_priority = parameters.get('priority', 1)
     priority = snl_priority * 2  # once we start a job, keep going!
 
     f = Composition(snl.structure.composition.reduced_formula).alphabetical_formula
+    nick_name = parameters.get("nick_name", f)
 
     # add the SNL to the SNL DB and figure out duplicate group
     tasks = [AddSNLTask()]
@@ -37,9 +42,10 @@ def snl_to_wf_elastic(snl, parameters):
         spec['force_mpsnl'] = snl.as_dict()
         spec['force_snlgroup_id'] = parameters['snlgroup_id']
         del spec['snl']
+    addsnl_fwid = cur_fwid
+    cur_fwid += 1
     fws.append(Firework(tasks, spec, 
-                        name=get_slug(f + '--' + spec['task_type']), fw_id=0))
-    connections[0] = [1]
+                        name=get_slug(nick_name + '--' + spec['task_type']), fw_id=cur_fwid))
 
     parameters["exact_structure"] = True
     # run GGA structure optimization for force convergence
