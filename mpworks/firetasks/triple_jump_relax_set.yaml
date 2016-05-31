@@ -12,6 +12,8 @@ STEP1:
     POTIM: 0.3
     PREC: ACCURATE
     SIGMA: 0
+  KPOINTS:
+    grid_density: 1000
   POTCAR:
     C: C
     H: H
@@ -33,6 +35,8 @@ STEP2:
     PREC: HIGH
     ROPT_PER_ATOM: -0.0001
     SIGMA: 0
+  KPOINTS:
+    grid_density: 3000
   POTCAR:
     C: C_h
     H: H_h
@@ -56,6 +60,8 @@ STEP3:
     PREC: HIGH
     ROPT_PER_ATOM: -0.0001
     SIGMA: 0
+  KPOINTS:
+    grid_density: 6000
   POTCAR:
     C: C_h
     H: H_h
