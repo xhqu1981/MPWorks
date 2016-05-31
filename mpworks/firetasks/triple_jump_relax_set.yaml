@@ -6,7 +6,10 @@ STEP1:
     IBRION: 1
     ISIF: 3
     ISMEAR: -5
+    ISTART: 0
+    LCHARG: false
     LREAL: AUTO
+    LWAVE: false
     NELMIN: 5
     NSW: 200
     POTIM: 0.3
@@ -28,7 +31,10 @@ STEP2:
     IOPT: 7
     ISIF: 3
     ISMEAR: -5
+    ISTART: 0
+    LCHARG: false
     LREAL: AUTO
+    LWAVE: false
     NELMIN: 5
     NSW: 200
     POTIM: 0
@@ -54,7 +60,10 @@ STEP3:
     IOPT: 7
     ISIF: 3
     ISMEAR: -5
+    ISTART: 0
+    LCHARG: false
     LREAL: AUTO
+    LWAVE: false
     MAXMOVE: 0.05
     NELMIN: 5
     NSW: 100
