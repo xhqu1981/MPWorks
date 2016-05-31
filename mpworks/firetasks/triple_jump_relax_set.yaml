@@ -2,12 +2,14 @@ STEP1:
   INCAR:
     EDIFF: -1.0e-06
     EDIFFG: -0.1
+    ENCUT_ENHANCE_RATIO: 0.2
     IBRION: 1
     ISIF: 3
     ISMEAR: -5
     LREAL: AUTO
     NELMIN: 5
     NSW: 200
+    POTIM: 0.3
     PREC: ACCURATE
     SIGMA: 0
   POTCAR:
