@@ -49,17 +49,20 @@ STEP3:
     EDIFFG: -0.002
     ENAUG_ENHANCE_RATIO: 0.75
     ENCUT_ENHANCE_RATIO: 0.75
+    FTIMEMAX: 0.5
     IBRION: 3
     IOPT: 7
     ISIF: 3
     ISMEAR: -5
     LREAL: AUTO
+    MAXMOVE: 0.05
     NELMIN: 5
     NSW: 100
     POTIM: 0
     PREC: HIGH
     ROPT_PER_ATOM: -0.0001
     SIGMA: 0
+    TIMESTEP: 0.05
   KPOINTS:
     grid_density: 6000
   POTCAR:
