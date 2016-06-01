@@ -1,12 +1,16 @@
 from collections import defaultdict
 
 from fireworks import Firework
+from fireworks.core.firework import Tracker
 from fireworks.utilities.fw_utilities import get_slug
 from pymatgen import Composition
 
+from mpworks.firetasks.custodian_task import get_custodian_task
+from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec
 from mpworks.firetasks.snl_tasks import AddSNLTask
+from mpworks.firetasks.vasp_io_tasks import VaspWriterTask, VaspCopyTask, VaspToDBTask
 from mpworks.snl_utils.mpsnl import MPStructureNL
-from mpworks.workflows.wf_settings import QA_DB
+from mpworks.workflows.wf_settings import QA_DB, QA_VASP
 
 __author__ = 'Xiaohui Qu'
 __copyright__ = 'Copyright 2016, The Materials Project'
@@ -48,26 +52,44 @@ def snl_to_wf_elastic(snl, parameters):
                         name=get_slug(nick_name + '--' + spec['task_type']), fw_id=cur_fwid))
 
     parameters["exact_structure"] = True
-    # run GGA structure optimization for force convergence
-    spec = snl_to_wf._snl_to_spec(snl, parameters=parameters)
-    user_vasp_settings = parameters.get("user_vasp_settings")
-    spec = update_spec_force_convergence(spec, user_vasp_settings)
-    spec['run_tags'].append("origin")
-    spec['_priority'] = priority
-    spec['_queueadapter'] = QA_VASP
-    del spec['_dupefinder']
-    spec['task_type'] = "Vasp force convergence optimize structure (2x)"
-    tasks = [VaspWriterTask(), get_custodian_task(spec)]
-    fws.append(Firework(tasks, spec, 
-                        name=get_slug(f + '--' + spec['task_type']), fw_id=1))
+    # run Triple Jump Structure Relaxation to Converge to a Very Small Force
+    geom_fwid = None
+    db_fwid = None
+    for istep in [1, 2, 3]:
+        spec = snl_to_nmr_spec(snl, istep, parameters)
+        trackers = [Tracker('FW_job.out'), Tracker('FW_job.error'), Tracker('vasp.out'), Tracker('OUTCAR'),
+                    Tracker('OSZICAR'), Tracker('OUTCAR.relax1'), Tracker('OUTCAR.relax2')]
+        trackers_db = [Tracker('FW_job.out'), Tracker('FW_job.error')]
+        # run GGA structure optimization
+        spec['_priority'] = priority
+        spec['_queueadapter'] = QA_VASP
+        spec['_trackers'] = trackers
+        tasks = [VaspWriterTask()]
+        if istep >= 2:
+            parameters["use_CONTCAR"] = True
+            parameters["files"] = "CONTCAR"
+            parameters["keep_velocities"] = False
+            tasks.append(VaspCopyTask(parameters=parameters))
+        tasks.append(get_custodian_task(spec))
+        geom_fwid = cur_fwid
+        cur_fwid += 1
+        fws.append(Firework(tasks, spec, name=get_slug(f + '--' + spec['task_type']),
+                            fw_id=geom_fwid))
+        geom_task_type = spec['task_type']
 
-    # insert into DB - GGA structure optimization
-    spec = {'task_type': 'VASP db insertion', '_priority': priority,
-            '_allow_fizzled_parents': True, '_queueadapter': QA_DB, 
-            'clean_task_doc':True, 'elastic_constant':"force_convergence"}
-    fws.append(Firework([VaspToDBTask()], spec, 
-                        name=get_slug(f + '--' + spec['task_type']), fw_id=2))
-    connections[1] = [2]
+        # insert into DB - GGA structure optimization
+        spec = {'task_type': 'VASP db insertion', '_priority': priority * 2,
+                '_allow_fizzled_parents': True, '_queueadapter': QA_DB, "_dupefinder": DupeFinderDB().to_dict(),
+                '_trackers': trackers_db}
+        db_fwid = cur_fwid
+        cur_fwid += 1
+        fws.append(
+            Firework([VaspToDBTask()], spec, name=get_slug(f + '--' + spec['task_type']
+                                                           + '--' + geom_task_type),
+                     fw_id=db_fwid))
+        connections[geom_fwid] = [db_fwid]
+        if istep == 1:
+            connections[addsnl_fwid] = [geom_fwid]
 
     spec = {'task_type': 'Setup Deformed Struct Task', '_priority': priority,
                 '_queueadapter': QA_CONTROL}

@@ -87,7 +87,10 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
         parent_config_dict = yaml.load(stream=f)
     config_dict = parent_config_dict[config_key]
 
-    incar_enforce = {'NPAR': 2}
+    if "NMR" in config_name:
+        incar_enforce = {'NPAR': 4}
+    else:
+        incar_enforce = {'KPAR': 4}
     if 'exact_structure' in parameters and parameters['exact_structure']:
         structure = snl.structure
     else:
