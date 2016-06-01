@@ -91,9 +91,9 @@ class VaspCopyTask(FireTaskBase, FWSerializable):
             if prev_filename.endswith('.gz'):
                 dest_file += '.gz'
 
-            print 'COPYING', prev_filename, dest_file
+            print('COPYING', prev_filename, dest_file)
             if self.missing_CHGCAR_OK and 'CHGCAR' in dest_file and not os.path.exists(zpath(prev_filename)):
-                print 'Skipping missing CHGCAR'
+                print('Skipping missing CHGCAR')
             else:
                 shutil.copy2(prev_filename, dest_file)
                 if '.gz' in dest_file:
@@ -178,7 +178,7 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         snlgroup_id = d['snlgroup_id_final'] if 'snlgroup_id_final' in d else d['snlgroup_id']
         update_spec.update({'mpsnl': mpsnl, 'snlgroup_id': snlgroup_id})
 
-        print 'ENTERED task id:', t_id
+        print('ENTERED task id:', t_id)
         stored_data = {'task_id': t_id}
         if d['state'] == 'successful':
             update_spec['analysis'] = d['analysis']
@@ -194,7 +194,7 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
             output_dir = last_relax(os.path.join(prev_dir, 'vasprun.xml'))
             ueh = UnconvergedErrorHandler(output_filename=output_dir)
             if ueh.check() and unconverged_tag not in fw_spec['run_tags']:
-                print 'Unconverged run! Creating dynamic FW...'
+                print('Unconverged run! Creating dynamic FW...')
 
                 spec = {'prev_vasp_dir': prev_dir,
                         'prev_task_type': fw_spec['task_type'],
