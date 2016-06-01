@@ -17,12 +17,31 @@ __date__ = 'May 31, 2016'
 This is modified from Wei Chen & Joseph Montoya's elastic_tasks.
 """
 
-def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce):
+def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
+    if element not in nqm_dict:
+        return 0.0
+    d = nqm_dict[element]
+    if len(d) > 1:
+        prefered_isotopes = set(parameters.get("isotopes", []))
+        pi = prefered_isotopes & set(list(d.keys()))
+        if len(pi) == 1:
+            return d[pi[0]]
+        if len(pi) >= 1:
+            raise ValueError("Multiple isotope is requested \"{}\", "
+                             "please request only one for each elements".format(list(pi)))
+        isotopes = list(d.keys())
+        isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
+        return d[isotopes[0]]
+    else:
+        return d.values()[0]
+
+def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce, parameters):
     trial_set = DictSet(structure, name=config_name, config_dict=config_dict,
                         user_incar_settings=incar_enforce)
     trial_potcar = trial_set.potcar
     all_enmax = [sp.enmax for sp in trial_potcar]
     all_eaug = [sp.eaug for sp in trial_potcar]
+    all_elements = [sp.element for sp in trial_potcar]
     num_species = len(all_enmax)
     processed_config_dict = copy.deepcopy(config_dict)
     for k1, pot_values in [("ENCUT", all_enmax), ("ENAUG", all_eaug)]:
@@ -35,8 +54,13 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
         processed_config_dict["INCAR"].pop("ROPT_PER_ATOM")
         processed_config_dict["INCAR"]["ROPT"] = \
             [config_dict["INCAR"]["ROPT_PER_ATOM"]] * num_species
+    if "QUAD_EFG_MAP" in config_dict["INCAR"]:
+        nqm_map = processed_config_dict["INCAR"].pop("QUAD_EFG_MAP")
+        quad_efg = [_get_nuclear_quadrupole_moment(el, nqm_map, parameters) for el in all_elements]
+        processed_config_dict["INCAR"]["QUAD_EFG"] = quad_efg
     vis = DictSet(structure, name=config_name, config_dict=processed_config_dict,
                   user_incar_settings=incar_enforce)
+    print(vis.incar)
     return vis
 
 def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
@@ -70,7 +94,7 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
     else:
         structure = snl.structure.get_primitive_structure()
     mpvis = _config_dict_to_input_set(config_dict, config_name, structure,
-                                      incar_enforce)
+                                      incar_enforce, parameters=parameters)
     exit()
 
 
