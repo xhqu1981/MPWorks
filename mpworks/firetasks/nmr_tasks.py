@@ -33,7 +33,7 @@ def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
         isotopes.sort(key=lambda x: int(x.split("-")[1]), reverse=False)
         return d[isotopes[0]]
     else:
-        return d.values()[0]
+        return list(d.values())[0]
 
 def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce, parameters):
     trial_set = DictSet(structure, name=config_name, config_dict=config_dict,
@@ -60,6 +60,7 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
         processed_config_dict["INCAR"]["QUAD_EFG"] = quad_efg
     vis = DictSet(structure, name=config_name, config_dict=processed_config_dict,
                   user_incar_settings=incar_enforce)
+    print(all_elements)
     print(vis.incar)
     return vis
 
