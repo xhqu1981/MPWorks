@@ -1,9 +1,12 @@
 import copy
 import os
 import yaml
+from pymatgen.io.vasp import Outcar, zpath
 from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
+from mpworks.firetasks.vasp_io_tasks import VaspToDBTask
+from mpworks.workflows.wf_utils import get_loc
 
 __author__ = 'Xiaohui Qu'
 __copyright__ = 'Copyright 2016, The Materials Project'
@@ -133,3 +136,27 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
 
     return spec
 
+
+class NmrVaspToDBTask(VaspToDBTask):
+    _fw_name = "NMR Tensor to Database Task"
+
+    def __init__(self, parameters=None):
+        super(NmrVaspToDBTask, self).__init__(parameters)
+
+    def run_task(self, fw_spec):
+        prev_dir = get_loc(fw_spec['prev_vasp_dir'])
+        outcar = Outcar(zpath(os.path.join(prev_dir, "vasprun.xml")))
+        prev_task_type = fw_spec['prev_task_type']
+        nmr_fields = dict()
+        if prev_task_type == "NMR CS":
+            cs = outcar.read_chemical_shifts()
+            cs_fiels = {"chemical_shifts": [x.as_dict() for x in cs]}
+            nmr_fields.update(cs_fiels)
+        elif prev_task_type == "NMR EFG":
+            efg = outcar.read_nmr_efg()
+            efg_fields = {"efg": efg}
+            nmr_fields.update(efg_fields)
+        else:
+            raise ValueError("Unsupported Task Type: \"{}\"".format(prev_task_type))
+        self.additional_fields.update(nmr_fields)
+        super(NmrVaspToDBTask, self).run_task(fw_spec)
