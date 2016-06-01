@@ -25,7 +25,7 @@ def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
         prefered_isotopes = set(parameters.get("isotopes", []))
         pi = prefered_isotopes & set(list(d.keys()))
         if len(pi) == 1:
-            return d[pi[0]]
+            return d[list(pi)[0]]
         if len(pi) >= 1:
             raise ValueError("Multiple isotope is requested \"{}\", "
                              "please request only one for each elements".format(list(pi)))
@@ -60,8 +60,6 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
         processed_config_dict["INCAR"]["QUAD_EFG"] = quad_efg
     vis = DictSet(structure, name=config_name, config_dict=processed_config_dict,
                   user_incar_settings=incar_enforce)
-    print(all_elements)
-    print(vis.incar)
     return vis
 
 def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
