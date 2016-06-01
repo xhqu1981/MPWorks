@@ -72,6 +72,8 @@ class VaspCopyTask(FireTaskBase, FWSerializable):
 
         self.files = parameters.get('files', default_files)  # files to move
         self.use_contcar = parameters.get('use_CONTCAR', True)  # whether to move CONTCAR to POSCAR
+        self.keep_velocities = parameters.get('keep_velocities', True) # whether to keep the
+        # velocities in POSCAR/CONTCAR, if set to False, velocities will be removed.
 
         if self.use_contcar:
             self.files.append('CONTCAR')
@@ -103,7 +105,10 @@ class VaspCopyTask(FireTaskBase, FWSerializable):
                     f.close()
                     os.remove(dest_file)
 
-
+        if self.use_contcar and not self.keep_velocities:
+            shutil.move("POSCAR", "POSCAR.orig.velocity")
+            poscar = Poscar.from_file("POSCAR.orig.velocity", read_velocities=False)
+            poscar.write_file(filename="POSCAR")
 
         return FWAction(stored_data={'copied_files': self.files})
 
