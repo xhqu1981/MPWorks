@@ -92,21 +92,13 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
         structure = snl.structure
     else:
         structure = snl.structure.get_primitive_structure()
+
     mpvis = _config_dict_to_input_set(config_dict, config_name, structure,
                                       incar_enforce, parameters=parameters)
-    exit()
-
-
-
-
-    # mpvis = MPGGAVaspInputSet(user_incar_settings=incar_enforce) if enforce_gga else MPVaspInputSet(user_incar_settings=incar_enforce)
-
-    mpvis = None
-
-    incar = mpvis.get_incar(structure)
-    poscar = mpvis.get_poscar(structure)
-    kpoints = mpvis.get_kpoints(structure)
-    potcar = mpvis.get_potcar(structure)
+    incar = mpvis.incar
+    poscar = mpvis.poscar
+    kpoints = mpvis.kpoints
+    potcar = mpvis.potcar
 
     spec['vasp'] = {}
     spec['vasp']['incar'] = incar.as_dict()
@@ -133,9 +125,8 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
         spec['run_tags'].extend('exact_structure')
 
     spec['_dupefinder'] = DupeFinderVasp().to_dict()
-    spec['vaspinputset_name'] = mpvis.__class__.__name__
-    spec['task_type'] = 'GGA+U optimize structure (2x)' if spec['vasp'][
-        'incar'].get('LDAU', False) else 'GGA optimize structure (2x)'
+    spec['vaspinputset_name'] = mpvis.name
+    spec['task_type'] = mpvis.name
 
     return spec
 
