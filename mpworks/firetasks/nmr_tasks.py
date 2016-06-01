@@ -50,12 +50,12 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
         config_name = "Triple Jump Relax S1"
     elif istep_triple_jump == -1:
         # NMR Chemical Shit calculations
-        config_file = os.path.join(module_dir, "nmr_set.yaml")
+        config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
         config_key = "CS"
         config_name = "NMR CS"
     elif istep_triple_jump == -2:
         # NMR Chemical Shit calculations
-        config_file = os.path.join(module_dir, "nmr_set.yaml")
+        config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
         config_key = "EFG"
         config_name = "NMR EFG"
     else:

@@ -1,0 +1,50 @@
+CS:
+  INCAR:
+    DQ: 0.001
+    EDIFF: -1.0e-10
+    ENCUT_ENHANCE_RATIO: 0.75
+    ICHIBARE: 1
+    ISMEAR: -5
+    ISTART: 0
+    LCHARG: false
+    LCHIMAG: true
+    LNMR_SYM_RED: true
+    LREAL: AUTO
+    LWAVE: false
+    NELMIN: 5
+    NSLPLINE: true
+    PREC: ACCURATE
+    SIGMA: 0
+  KPOINTS:
+    grid_density: 6000
+  POTCAR:
+    C: C_h
+    H: H_h
+    Mg: Mg_sv
+    O: O_h
+EFG:
+  INCAR:
+    EDIFF: -1.0e-06
+    ENCUT_ENHANCE_RATIO: 0.2
+    ISMEAR: -5
+    ISTART: 0
+    LCHARG: false
+    LEFG: true
+    LREAL: AUTO
+    LWAVE: false
+    NELMIN: 5
+    PREC: ACCURATE
+    QUAD_EFG:
+      Al:
+        Al-27: 146.6
+      Ca:
+        Ca-41: -66.5
+        Ca-43: -40.8
+    SIGMA: 0
+  KPOINTS:
+    grid_density: 3000
+  POTCAR:
+    C: C
+    H: H
+    Mg: Mg_sv
+    O: O
