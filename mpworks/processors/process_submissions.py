@@ -3,9 +3,6 @@ import traceback
 from fireworks.core.launchpad import LaunchPad
 from mpworks.snl_utils.mpsnl import MPStructureNL
 from mpworks.submission.submission_mongo import SubmissionMongoAdapter
-from mpworks.workflows.snl_to_wf import snl_to_wf
-from mpworks.workflows.snl_to_wf_elastic import snl_to_wf_elastic
-from mpworks.workflows.snl_to_wf_nmr import snl_to_wf_nmr
 from mpworks.workflows.wf_utils import NO_POTCARS
 from pymatgen.matproj.snl import StructureNL
 
@@ -78,10 +75,18 @@ class SubmissionProcessor():
 
                     # create a workflow
                     if "Elasticity" in snl.projects:
+                        from mpworks.workflows.snl_to_wf_elastic import snl_to_wf_elastic
                         wf = snl_to_wf_elastic(snl, job['parameters'])
                     elif "NMR" in snl.projects:
+                        # The deferred imported is a dirty fix to avoid the import
+                        # error from pymatgen.io.vasp.sets, although pointing to
+                        # sets_deprecated would make things work temporally, the
+                        # ultimate solution would be to use the new style VaspInputSets
+                        # in pymatgen. NMR workflow uses the new style API.
+                        from mpworks.workflows.snl_to_wf_nmr import snl_to_wf_nmr
                         wf = snl_to_wf_nmr(snl, job['parameters'])
                     else:
+                        from mpworks.workflows.snl_to_wf import snl_to_wf
                         wf = snl_to_wf(snl, job['parameters'])
                     self.launchpad.add_wf(wf)
                     print('ADDED WORKFLOW FOR {}'.format(snl.structure.formula))
