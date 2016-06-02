@@ -5,6 +5,7 @@ from mpworks.snl_utils.mpsnl import MPStructureNL
 from mpworks.submission.submission_mongo import SubmissionMongoAdapter
 from mpworks.workflows.snl_to_wf import snl_to_wf
 from mpworks.workflows.snl_to_wf_elastic import snl_to_wf_elastic
+from mpworks.workflows.snl_to_wf_nmr import snl_to_wf_nmr
 from mpworks.workflows.wf_utils import NO_POTCARS
 from pymatgen.matproj.snl import StructureNL
 
@@ -30,11 +31,11 @@ class SubmissionProcessor():
         sleep_time = sleep_time if sleep_time else 30
         while True:
             self.submit_all_new_workflows()
-            print "Updating existing workflows..."
+            print("Updating existing workflows...")
             self.update_existing_workflows()  # for updating the display
             if not infinite:
                 break
-            print 'sleeping', sleep_time
+            print('sleeping', sleep_time)
             time.sleep(sleep_time)
 
     def submit_all_new_workflows(self):
@@ -54,34 +55,36 @@ class SubmissionProcessor():
                     snl = StructureNL.from_dict(job)
                 if len(snl.structure.sites) > SubmissionProcessor.MAX_SITES:
                     self.sma.update_state(submission_id, 'REJECTED', 'too many sites', {})
-                    print 'REJECTED WORKFLOW FOR {} - too many sites ({})'.format(
-                        snl.structure.formula, len(snl.structure.sites))
+                    print('REJECTED WORKFLOW FOR {} - too many sites ({})'.format(
+                          snl.structure.formula, len(snl.structure.sites)))
                 elif not job['is_valid']:
                     self.sma.update_state(submission_id, 'REJECTED',
                                           'invalid structure (atoms too close)', {})
-                    print 'REJECTED WORKFLOW FOR {} - invalid structure'.format(
-                        snl.structure.formula)
+                    print('REJECTED WORKFLOW FOR {} - invalid structure'.format(
+                           snl.structure.formula))
                 elif len(set(NO_POTCARS) & set(job['elements'])) > 0:
                     self.sma.update_state(submission_id, 'REJECTED',
                                           'invalid structure (no POTCAR)', {})
-                    print 'REJECTED WORKFLOW FOR {} - invalid element (No POTCAR)'.format(
-                        snl.structure.formula)
+                    print('REJECTED WORKFLOW FOR {} - invalid element (No POTCAR)'.format(
+                           snl.structure.formula))
                 elif not job['is_ordered']:
                     self.sma.update_state(submission_id, 'REJECTED',
                                           'invalid structure (disordered)', {})
-                    print 'REJECTED WORKFLOW FOR {} - invalid structure'.format(
-                        snl.structure.formula)
+                    print('REJECTED WORKFLOW FOR {} - invalid structure'.format(
+                        snl.structure.formula))
                 else:
                     snl.data['_materialsproject'] = snl.data.get('_materialsproject', {})
                     snl.data['_materialsproject']['submission_id'] = submission_id
 
                     # create a workflow
                     if "Elasticity" in snl.projects:
-                        wf=snl_to_wf_elastic(snl, job['parameters'])
+                        wf = snl_to_wf_elastic(snl, job['parameters'])
+                    elif "NMR" in snl.projects:
+                        wf = snl_to_wf_nmr(snl, job['parameters'])
                     else:
                         wf = snl_to_wf(snl, job['parameters'])
                     self.launchpad.add_wf(wf)
-                    print 'ADDED WORKFLOW FOR {}'.format(snl.structure.formula)
+                    print('ADDED WORKFLOW FOR {}'.format(snl.structure.formula))
             except:
                 self.jobs.find_and_modify({'submission_id': submission_id},
                                           {'$set': {'state': 'ERROR'}})
@@ -99,7 +102,7 @@ class SubmissionProcessor():
             try:
                 self.update_wf_state(submission_id)
             except:
-                print 'ERROR while processing s_id', submission_id
+                print('ERROR while processing s_id', submission_id)
                 traceback.print_exc()
         
 

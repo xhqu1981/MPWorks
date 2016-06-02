@@ -20,6 +20,7 @@ __date__ = 'May 31, 2016'
 This is modified from Wei Chen & Joseph Montoya's elastic_tasks.
 """
 
+
 def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
     if element not in nqm_dict:
         return 0.0
@@ -37,6 +38,7 @@ def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
         return d[isotopes[0]]
     else:
         return list(d.values())[0]
+
 
 def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce, parameters):
     trial_set = DictSet(structure, name=config_name, config_dict=config_dict,
@@ -65,12 +67,13 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
                   user_incar_settings=incar_enforce)
     return vis
 
+
 def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
     parameters = parameters if parameters else {}
     spec = {'parameters': parameters}
 
     module_dir = os.path.abspath(os.path.dirname(__file__))
-    if 1<= istep_triple_jump <= 3:
+    if 1 <= istep_triple_jump <= 3:
         config_file = os.path.join(module_dir, "triple_jump_relax_set.yaml")
         config_key = "STEP{}".format(istep_triple_jump)
         config_name = "Triple Jump Relax S1"
@@ -127,7 +130,8 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
         del spec['parameters']['run_tags']
 
     # add exact structure run tag automatically if we have a unique situation
-    if 'exact_structure' in parameters and parameters['exact_structure'] and snl.structure != snl.structure.get_primitive_structure():
+    if 'exact_structure' in parameters and parameters['exact_structure'] and \
+            snl.structure != snl.structure.get_primitive_structure():
         spec['run_tags'].extend('exact_structure')
 
     spec['_dupefinder'] = DupeFinderVasp().to_dict()
