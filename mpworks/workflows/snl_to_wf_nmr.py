@@ -1,16 +1,17 @@
+import copy
 from collections import defaultdict
 
 from fireworks import Firework
-from fireworks.core.firework import Tracker
+from fireworks.core.firework import Tracker, Workflow
 from fireworks.utilities.fw_utilities import get_slug
 from pymatgen import Composition
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderDB
 from mpworks.firetasks.custodian_task import get_custodian_task
-from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec
+from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask
 from mpworks.firetasks.snl_tasks import AddSNLTask
 from mpworks.firetasks.vasp_io_tasks import VaspWriterTask, VaspCopyTask, VaspToDBTask
-from mpworks.snl_utils.mpsnl import MPStructureNL
+from mpworks.snl_utils.mpsnl import MPStructureNL, get_meta_from_structure
 from mpworks.workflows.wf_settings import QA_DB, QA_VASP
 
 __author__ = 'Xiaohui Qu'
@@ -88,34 +89,8 @@ def snl_to_wf_elastic(snl, parameters):
         copy_contcar = istep >= 2
         geom_calc_fwid = cur_fwid
         cur_fwid += 1
-        vasp_fw = get_nmr_vasp_fw(geom_calc_fwid, copy_contcar, istep, nick_name, parameters, priority, snl)
-        fws.append(vasp_fw)
-        geom_task_type = vasp_fw.spec['task_type']
-        if istep == 1:
-            connections[addsnl_fwid] = [geom_calc_fwid]
-        else:
-            prev_db_fwid = geom_db_fwid
-            connections[prev_db_fwid] = [geom_calc_fwid]
-
-        # insert into DB
-        task_class =  VaspToDBTask
-        prev_task_type = geom_task_type
-
-        geom_db_fwid = cur_fwid
-        cur_fwid += 1
-        db_fw = get_nmr_db_fw(nick_name, geom_db_fwid, prev_task_type, priority, task_class)
-        fws.append(db_fw)
-        connections[geom_calc_fwid] = [geom_db_fwid]
-
-
-    # Calculate NMR Tensors
-    for istep in [-1, -2]:
-        # -1: Chemical Shift, -2: EFG
-        # Geometry Optimization
-        copy_contcar = istep >= 2
-        geom_calc_fwid = cur_fwid
-        cur_fwid += 1
-        vasp_fw = get_nmr_vasp_fw(geom_calc_fwid, copy_contcar, istep, nick_name, parameters, priority, snl)
+        vasp_fw = get_nmr_vasp_fw(geom_calc_fwid, copy_contcar, istep, nick_name,
+                                  copy.deepcopy(parameters), priority, copy.deepcopy(snl))
         fws.append(vasp_fw)
         geom_task_type = vasp_fw.spec['task_type']
         if istep == 1:
@@ -127,15 +102,41 @@ def snl_to_wf_elastic(snl, parameters):
         # insert into DB
         task_class = VaspToDBTask
         prev_task_type = geom_task_type
-
         geom_db_fwid = cur_fwid
         cur_fwid += 1
         db_fw = get_nmr_db_fw(nick_name, geom_db_fwid, prev_task_type, priority, task_class)
         fws.append(db_fw)
         connections[geom_calc_fwid] = [geom_db_fwid]
 
-    return Workflow(fws, connections, name=Composition(
-        snl.structure.composition.reduced_formula).alphabetical_formula, metadata=wf_meta)
+
+    # Calculate NMR Tensors
+    for istep in [-1, -2]:
+        # -1: Chemical Shift, -2: EFG
+        # Geometry Optimization
+        nmr_calc_fwid = cur_fwid
+        cur_fwid += 1
+        vasp_fw = get_nmr_vasp_fw(nmr_calc_fwid, True, istep, nick_name, copy.deepcopy(parameters),
+                                  priority, copy.deepcopy(snl))
+        fws.append(vasp_fw)
+        nmr_task_type = vasp_fw.spec['task_type']
+        connections[geom_calc_fwid] = [nmr_calc_fwid]
+
+        # insert into DB
+        task_class = NmrVaspToDBTask
+        prev_task_type = nmr_task_type
+        nmr_db_fwid = cur_fwid
+        cur_fwid += 1
+        db_fw = get_nmr_db_fw(nick_name, nmr_db_fwid, prev_task_type, priority, task_class)
+        fws.append(db_fw)
+        connections[nmr_calc_fwid] = [nmr_db_fwid]
+
+    wf_meta = get_meta_from_structure(snl.structure)
+    wf_meta['run_version'] = 'June 2016 (1)'
+
+    if '_materialsproject' in snl.data and 'submission_id' in snl.data['_materialsproject']:
+        wf_meta['submission_id'] = snl.data['_materialsproject']['submission_id']
+
+    return Workflow(fws, connections, name=nick_name, metadata=wf_meta)
 
 
 
