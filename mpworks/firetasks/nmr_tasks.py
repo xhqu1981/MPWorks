@@ -2,7 +2,7 @@ import copy
 import os
 import yaml
 from pymatgen.io.vasp import Outcar, zpath
-from pymatgen.io.vasp.sets_deprecated import DictSet
+from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
 from mpworks.firetasks.vasp_io_tasks import VaspToDBTask
