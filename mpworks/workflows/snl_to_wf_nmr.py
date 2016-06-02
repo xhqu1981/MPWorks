@@ -82,7 +82,7 @@ def snl_to_wf_nmr(snl, parameters):
     addsnl_fwid = cur_fwid
     cur_fwid += 1
     fws.append(Firework(tasks, spec, 
-                        name=get_slug(nick_name + '--' + spec['task_type']), fw_id=cur_fwid))
+                        name=get_slug(nick_name + '--' + spec['task_type']), fw_id=addsnl_fwid))
 
     parameters["exact_structure"] = True
     # run Triple Jump Structure Relaxation to Converge to a Very Small Force
