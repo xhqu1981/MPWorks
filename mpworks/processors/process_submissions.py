@@ -5,6 +5,7 @@ from mpworks.snl_utils.mpsnl import MPStructureNL
 from mpworks.submission.submission_mongo import SubmissionMongoAdapter
 from mpworks.workflows.snl_to_wf import snl_to_wf
 from mpworks.workflows.snl_to_wf_elastic import snl_to_wf_elastic
+from mpworks.workflows.snl_to_wf_nmr import snl_to_wf_nmr
 from mpworks.workflows.wf_utils import NO_POTCARS
 from pymatgen.matproj.snl import StructureNL
 
@@ -77,7 +78,9 @@ class SubmissionProcessor():
 
                     # create a workflow
                     if "Elasticity" in snl.projects:
-                        wf=snl_to_wf_elastic(snl, job['parameters'])
+                        wf = snl_to_wf_elastic(snl, job['parameters'])
+                    elif "NMR" in snl.projects:
+                        wf = snl_to_wf_nmr(snl, job['parameters'])
                     else:
                         wf = snl_to_wf(snl, job['parameters'])
                     self.launchpad.add_wf(wf)

@@ -54,7 +54,7 @@ def get_nmr_db_fw(nick_name, fwid, prev_task_type, priority, task_class):
                      fw_id=fwid)
     return db_fw
 
-def snl_to_wf_elastic(snl, parameters):
+def snl_to_wf_nmr(snl, parameters):
     # parameters["user_vasp_settings"] specifies user defined incar/kpoints parameters
     fws = []
     connections = defaultdict(list)
