@@ -26,6 +26,7 @@ __date__ = 'May 31, 2016'
 This is modified from Wei Chen's snl_to_wf_elastic.
 """
 
+
 def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, snl):
     spec = snl_to_nmr_spec(snl, istep, parameters)
     trackers = [Tracker('FW_job.out'), Tracker('FW_job.error'), Tracker('vasp.out'), Tracker('OUTCAR'),
@@ -33,7 +34,8 @@ def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, 
     spec['_priority'] = priority
     spec['_queueadapter'] = QA_VASP
     spec['_trackers'] = trackers
-    tasks = [VaspWriterTask()]
+    tasks = list()
+    tasks.append(VaspWriterTask())
     if copy_contcar:
         parameters["use_CONTCAR"] = True
         parameters["files"] = "CONTCAR"
@@ -44,6 +46,7 @@ def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, 
                        fw_id=fwid)
     return vasp_fw
 
+
 def get_nmr_db_fw(nick_name, fwid, prev_task_type, priority, task_class):
     trackers_db = [Tracker('FW_job.out'), Tracker('FW_job.error')]
     spec = {'task_type': 'VASP db insertion', '_priority': priority * 2,
@@ -53,6 +56,7 @@ def get_nmr_db_fw(nick_name, fwid, prev_task_type, priority, task_class):
                                                          '--' + prev_task_type),
                      fw_id=fwid)
     return db_fw
+
 
 def snl_to_wf_nmr(snl, parameters):
     # parameters["user_vasp_settings"] specifies user defined incar/kpoints parameters
@@ -108,7 +112,6 @@ def snl_to_wf_nmr(snl, parameters):
         fws.append(db_fw)
         connections[geom_calc_fwid] = [geom_db_fwid]
 
-
     # Calculate NMR Tensors
     for istep in [-1, -2]:
         # -1: Chemical Shift, -2: EFG
@@ -137,9 +140,3 @@ def snl_to_wf_nmr(snl, parameters):
         wf_meta['submission_id'] = snl.data['_materialsproject']['submission_id']
 
     return Workflow(fws, connections, name=nick_name, metadata=wf_meta)
-
-
-
-
-
-
