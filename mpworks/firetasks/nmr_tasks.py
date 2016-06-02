@@ -76,7 +76,7 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
     if 1 <= istep_triple_jump <= 3:
         config_file = os.path.join(module_dir, "triple_jump_relax_set.yaml")
         config_key = "STEP{}".format(istep_triple_jump)
-        config_name = "Triple Jump Relax S1"
+        config_name = "Triple Jump Relax S{}".format(istep_triple_jump)
     elif istep_triple_jump == -1:
         # NMR Chemical Shit calculations
         config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
