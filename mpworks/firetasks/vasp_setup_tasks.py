@@ -5,7 +5,7 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.core.firework import FireTaskBase, FWAction
 from pymatgen.io.vasp.outputs import Vasprun, Outcar
 from pymatgen.io.vasp.inputs import VaspInput, Incar, Poscar, Kpoints, Potcar
-from pymatgen.io.vasp.sets import MPVaspInputSet, MPStaticVaspInputSet, \
+from pymatgen.io.vasp.sets_deprecated import MPVaspInputSet, MPStaticVaspInputSet, \
     MPNonSCFVaspInputSet
 from pymatgen.symmetry.bandstructure import HighSymmKpath
 
