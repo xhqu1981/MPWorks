@@ -38,7 +38,7 @@ def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, 
     tasks.append(VaspWriterTask())
     if copy_contcar:
         parameters["use_CONTCAR"] = True
-        parameters["files"] = "CONTCAR"
+        parameters["files"] = ["CONTCAR"]
         parameters["keep_velocities"] = False
         tasks.append(VaspCopyTask(parameters=parameters))
     tasks.append(get_custodian_task(spec))
