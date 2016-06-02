@@ -36,7 +36,8 @@ def clear_env():
 
     conn = MongoClient(db_creds['host'], db_creds['port'])
     db = conn[db_creds['database']]
-    db.authenticate(db_creds['admin_user'], db_creds['admin_password'])
+    if db_creds['admin_user'] is not None:
+        db.authenticate(db_creds['admin_user'], db_creds['admin_password'])
     db.tasks.remove()
     db.boltztrap.remove()
     db.counter.remove()
