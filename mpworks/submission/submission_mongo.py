@@ -94,7 +94,7 @@ class SubmissionMongoAdapter(object):
 
     def _get_next_submission_id(self):
         return self.id_assigner.find_one_and_update(
-            query={}, update={'$inc': {'next_submission_id': 1}})[
+            filter={}, update={'$inc': {'next_submission_id': 1}})[
                 'next_submission_id']
 
     def _restart_id_assigner_at(self, next_submission_id):
