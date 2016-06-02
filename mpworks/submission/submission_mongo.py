@@ -93,7 +93,7 @@ class SubmissionMongoAdapter(object):
         self.jobs.ensure_index('submitter_email')
 
     def _get_next_submission_id(self):
-        return self.id_assigner.find_and_modify(
+        return self.id_assigner.find_one_and_update(
             query={}, update={'$inc': {'next_submission_id': 1}})[
                 'next_submission_id']
 
@@ -140,7 +140,7 @@ class SubmissionMongoAdapter(object):
             updates['parameters'] = self.jobs.find_one({'submission_id': submission_id}, {'parameters': 1})['parameters']
             updates['parameters'].update({"mpsnl": mpsnl.as_dict(), "snlgroup_id": snlgroup_id})
 
-        self.jobs.find_and_modify({'submission_id': submission_id}, {'$set': updates})
+        self.jobs.find_one_and_update({'submission_id': submission_id}, {'$set': updates})
 
 
     def cancel_submission(self, submission_id):
@@ -165,8 +165,8 @@ class SubmissionMongoAdapter(object):
         return d
 
     def update_state(self, submission_id, state, state_details, task_dict):
-        self.jobs.find_and_modify({'submission_id': submission_id},
-                                  {'$set': {'state': state, 'state_details': state_details, 'task_dict': task_dict}})
+        self.jobs.find_one_and_update({'submission_id': submission_id},
+                                      {'$set': {'state': state, 'state_details': state_details, 'task_dict': task_dict}})
 
     @classmethod
     def from_dict(cls, d):
