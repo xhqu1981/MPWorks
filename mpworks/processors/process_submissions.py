@@ -42,7 +42,7 @@ class SubmissionProcessor():
 
     def submit_new_workflow(self):
         # finds a submitted job, creates a workflow, and submits it to FireWorks
-        job = self.jobs.find_and_modify({'state': 'SUBMITTED'}, {'$set': {'state': 'WAITING'}})
+        job = self.jobs.find_one_and_update({'state': 'SUBMITTED'}, {'$set': {'state': 'WAITING'}})
         if job:
             submission_id = job['submission_id']
             try:
@@ -91,8 +91,8 @@ class SubmissionProcessor():
                     self.launchpad.add_wf(wf)
                     print('ADDED WORKFLOW FOR {}'.format(snl.structure.formula))
             except:
-                self.jobs.find_and_modify({'submission_id': submission_id},
-                                          {'$set': {'state': 'ERROR'}})
+                self.jobs.find_one_and_update({'submission_id': submission_id},
+                                              {'$set': {'state': 'ERROR'}})
                 traceback.print_exc()
 
             return submission_id

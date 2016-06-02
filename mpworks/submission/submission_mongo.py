@@ -88,9 +88,9 @@ class SubmissionMongoAdapter(object):
         self.jobs.remove()
 
     def _update_indices(self):
-        self.jobs.ensure_index('submission_id', unique=True)
-        self.jobs.ensure_index('state')
-        self.jobs.ensure_index('submitter_email')
+        self.jobs.create_index('submission_id', unique=True)
+        self.jobs.create_index('state')
+        self.jobs.create_index('submitter_email')
 
     def _get_next_submission_id(self):
         return self.id_assigner.find_one_and_update(
