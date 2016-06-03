@@ -1,7 +1,8 @@
 import copy
 import os
 import yaml
-from pymatgen.io.vasp import Outcar, zpath
+from monty.os.path import zpath
+from pymatgen.io.vasp import Outcar
 from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
@@ -145,12 +146,12 @@ class NmrVaspToDBTask(VaspToDBTask):
         prev_task_type = fw_spec['prev_task_type']
         nmr_fields = dict()
         if prev_task_type == "NMR CS":
-            cs = outcar.read_chemical_shifts()
-            cs_fiels = {"chemical_shifts": [x.as_dict() for x in cs]}
+            outcar.read_chemical_shifts()
+            cs_fiels = {"chemical_shifts": [x.as_dict() for x in outcar.data["chemical_shifts"]]}
             nmr_fields.update(cs_fiels)
         elif prev_task_type == "NMR EFG":
-            efg = outcar.read_nmr_efg()
-            efg_fields = {"efg": efg}
+            outcar.read_nmr_efg()
+            efg_fields = {"efg": outcar.data["efg"]}
             nmr_fields.update(efg_fields)
         else:
             raise ValueError("Unsupported Task Type: \"{}\"".format(prev_task_type))
