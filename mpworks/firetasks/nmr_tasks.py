@@ -68,7 +68,7 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
     return vis
 
 
-def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
+def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_run_tags=()):
     parameters = parameters if parameters else {}
     spec = {'parameters': parameters}
 
@@ -92,15 +92,12 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
     with open(config_file) as f:
         parent_config_dict = yaml.load(stream=f)
     config_dict = parent_config_dict[config_key]
-
     if "NMR" in config_name:
         incar_enforce = {'NPAR': 4}
     else:
         incar_enforce = {'KPAR': 4}
-    if 'exact_structure' in parameters and parameters['exact_structure']:
-        structure = snl.structure
-    else:
-        structure = snl.structure.get_primitive_structure()
+    spec['run_tags'] = spec.get('run_tags', [])
+    spec['run_tags'].extend(additional_run_tags)
 
     mpvis = _config_dict_to_input_set(config_dict, config_name, structure,
                                       incar_enforce, parameters=parameters)
@@ -128,11 +125,6 @@ def snl_to_nmr_spec(snl, istep_triple_jump, parameters=None):
     if 'run_tags' in parameters:
         spec['run_tags'].extend(parameters['run_tags'])
         del spec['parameters']['run_tags']
-
-    # add exact structure run tag automatically if we have a unique situation
-    if 'exact_structure' in parameters and parameters['exact_structure'] and \
-            snl.structure != snl.structure.get_primitive_structure():
-        spec['run_tags'].extend('exact_structure')
 
     spec['_dupefinder'] = DupeFinderVasp().to_dict()
     spec['vaspinputset_name'] = mpvis.name

@@ -27,8 +27,8 @@ This is modified from Wei Chen's snl_to_wf_elastic.
 """
 
 
-def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, snl):
-    spec = snl_to_nmr_spec(snl, istep, parameters)
+def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, structure, additional_run_tags):
+    spec = snl_to_nmr_spec(structure, istep, parameters, additional_run_tags)
     trackers = [Tracker('FW_job.out'), Tracker('FW_job.error'), Tracker('vasp.out'), Tracker('OUTCAR'),
                 Tracker('OSZICAR'), Tracker('OUTCAR.relax1'), Tracker('OUTCAR.relax2')]
     spec['_priority'] = priority
@@ -71,6 +71,17 @@ def snl_to_wf_nmr(snl, parameters):
     f = Composition(snl.structure.composition.reduced_formula).alphabetical_formula
     nick_name = parameters.get("nick_name", f)
 
+    if 'exact_structure' in parameters and parameters['exact_structure']:
+        structure = snl.structure
+    else:
+        structure = snl.structure.get_primitive_structure()
+
+    additional_run_tags = []
+    # add exact structure run tag automatically if we have a unique situation
+    if 'exact_structure' in parameters and parameters['exact_structure'] and \
+            snl.structure != structure:
+        additional_run_tags.append('exact_structure')
+
     # add the SNL to the SNL DB and figure out duplicate group
     tasks = [AddSNLTask()]
     spec = {'task_type': 'Add to SNL database', 'snl': snl.as_dict(), 
@@ -94,7 +105,8 @@ def snl_to_wf_nmr(snl, parameters):
         geom_calc_fwid = cur_fwid
         cur_fwid += 1
         vasp_fw = get_nmr_vasp_fw(geom_calc_fwid, copy_contcar, istep, nick_name,
-                                  copy.deepcopy(parameters), priority, copy.deepcopy(snl))
+                                  copy.deepcopy(parameters), priority, copy.deepcopy(structure),
+                                  additional_run_tags)
         fws.append(vasp_fw)
         geom_task_type = vasp_fw.spec['task_type']
         if istep == 1:
@@ -119,7 +131,7 @@ def snl_to_wf_nmr(snl, parameters):
         nmr_calc_fwid = cur_fwid
         cur_fwid += 1
         vasp_fw = get_nmr_vasp_fw(nmr_calc_fwid, True, istep, nick_name, copy.deepcopy(parameters),
-                                  priority, copy.deepcopy(snl))
+                                  priority, copy.deepcopy(structure), additional_run_tags)
         fws.append(vasp_fw)
         nmr_task_type = vasp_fw.spec['task_type']
         connections[geom_calc_fwid].extend([nmr_calc_fwid])
