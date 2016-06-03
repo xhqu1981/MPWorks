@@ -52,7 +52,7 @@ def get_nmr_db_fw(nick_name, fwid, prev_task_type, priority, task_class):
     spec = {'task_type': 'VASP db insertion', '_priority': priority * 2,
             '_allow_fizzled_parents': True, '_queueadapter': QA_DB, "_dupefinder": DupeFinderDB().to_dict(),
             '_trackers': trackers_db}
-    db_fw = Firework([task_class()], spec, name=get_slug(nick_name + '--' + spec['task_type'] +
+    db_fw = Firework([task_class(parameters={"update_input": False})], spec, name=get_slug(nick_name + '--' + spec['task_type'] +
                                                          '--' + prev_task_type),
                      fw_id=fwid)
     return db_fw
