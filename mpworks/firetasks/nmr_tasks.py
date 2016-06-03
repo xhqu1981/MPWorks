@@ -141,7 +141,7 @@ class NmrVaspToDBTask(VaspToDBTask):
 
     def run_task(self, fw_spec):
         prev_dir = get_loc(fw_spec['prev_vasp_dir'])
-        outcar = Outcar(zpath(os.path.join(prev_dir, "vasprun.xml")))
+        outcar = Outcar(zpath(os.path.join(prev_dir, "OUTCAR")))
         prev_task_type = fw_spec['prev_task_type']
         nmr_fields = dict()
         if prev_task_type == "NMR CS":
