@@ -15,7 +15,7 @@ STEP1:
     NSW: 200
     POTIM: 0.3
     PREC: ACCURATE
-    SIGMA: 0
+    SIGMA: 0.1
   KPOINTS:
     grid_density: 1000
   POTCAR:
@@ -29,6 +29,7 @@ STEP2:
     ALGO: FAST
     EDIFF: -1.0e-08
     EDIFFG: -0.01
+    ENAUG_ENHANCE_RATIO: 0.25
     IBRION: 3
     IOPT: 7
     ISIF: 3
@@ -40,9 +41,8 @@ STEP2:
     NELMIN: 5
     NSW: 200
     POTIM: 0
-    PREC: HIGH
-    ROPT_PER_ATOM: -0.0001
-    SIGMA: 0
+    PREC: ACCURATE
+    SIGMA: 0.03
   KPOINTS:
     grid_density: 3000
   POTCAR:
@@ -57,7 +57,6 @@ STEP3:
     EDIFF: -1.0e-10
     EDIFFG: -0.002
     ENAUG_ENHANCE_RATIO: 0.75
-    ENCUT_ENHANCE_RATIO: 0.75
     FTIMEMAX: 0.5
     IBRION: 3
     IOPT: 7
@@ -65,15 +64,14 @@ STEP3:
     ISMEAR: -5
     ISTART: 0
     LCHARG: false
-    LREAL: AUTO
+    LREAL: false
     LWAVE: false
     MAXMOVE: 0.05
-    NELMIN: 5
+    NELMIN: 10
     NSW: 100
     POTIM: 0
-    PREC: HIGH
-    ROPT_PER_ATOM: -0.0001
-    SIGMA: 0
+    PREC: ACCURATE
+    SIGMA: 0.01
     TIMESTEP: 0.05
   KPOINTS:
     grid_density: 6000
