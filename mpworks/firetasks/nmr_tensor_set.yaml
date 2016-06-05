@@ -14,7 +14,7 @@ CS:
     NELMIN: 5
     NSLPLINE: true
     PREC: ACCURATE
-    SIGMA: 0
+    SIGMA: 0.01
   KPOINTS:
     grid_density: 6000
   POTCAR:
