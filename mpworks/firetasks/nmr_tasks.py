@@ -108,11 +108,11 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     potcar = mpvis.potcar
 
     spec['vasp'] = {}
-    spec['vasp']['incar'] = incar.as_dict()
-    spec['vasp']['poscar'] = poscar.as_dict()
-    spec['vasp']['kpoints'] = kpoints.as_dict()
-    spec['vasp']['potcar'] = potcar.as_dict()
-    mpvis["custodian_default_input_set"] = mpvis
+    spec['vasp']['incar'] = incar
+    spec['vasp']['poscar'] = poscar
+    spec['vasp']['kpoints'] = kpoints
+    spec['vasp']['potcar'] = potcar
+    spec["custodian_default_input_set"] = mpvis
 
     # Add run tags of pseudopotential
     spec['run_tags'] = spec.get('run_tags', [potcar.functional])
