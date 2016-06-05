@@ -64,7 +64,7 @@ STEP3:
     ISMEAR: -5
     ISTART: 0
     LCHARG: false
-    LREAL: false
+    LREAL: AUTO
     LWAVE: false
     MAXMOVE: 0.05
     NELMIN: 10
