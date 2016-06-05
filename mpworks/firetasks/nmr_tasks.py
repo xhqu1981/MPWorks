@@ -41,8 +41,8 @@ def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
         return list(d.values())[0]
 
 
-def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce, parameters):
-    trial_set = DictSet(structure, name=config_name, config_dict=config_dict,
+def _config_dict_to_input_set(config_dict, structure, incar_enforce, parameters):
+    trial_set = DictSet(structure, config_dict=config_dict,
                         user_incar_settings=incar_enforce)
     trial_potcar = trial_set.potcar
     all_enmax = [sp.enmax for sp in trial_potcar]
@@ -64,7 +64,7 @@ def _config_dict_to_input_set(config_dict, config_name, structure, incar_enforce
         nqm_map = processed_config_dict["INCAR"].pop("QUAD_EFG_MAP")
         quad_efg = [_get_nuclear_quadrupole_moment(el, nqm_map, parameters) for el in all_elements]
         processed_config_dict["INCAR"]["QUAD_EFG"] = quad_efg
-    vis = DictSet(structure, name=config_name, config_dict=processed_config_dict,
+    vis = DictSet(structure, config_dict=processed_config_dict,
                   user_incar_settings=incar_enforce)
     return vis
 
@@ -100,7 +100,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
 
-    mpvis = _config_dict_to_input_set(config_dict, config_name, structure,
+    mpvis = _config_dict_to_input_set(config_dict, structure,
                                       incar_enforce, parameters=parameters)
     incar = mpvis.incar
     poscar = mpvis.poscar
@@ -128,8 +128,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
         del spec['parameters']['run_tags']
 
     spec['_dupefinder'] = DupeFinderVasp().to_dict()
-    spec['vaspinputset_name'] = mpvis.name
-    spec['task_type'] = mpvis.name
+    spec['task_type'] = config_name
 
     return spec
 
