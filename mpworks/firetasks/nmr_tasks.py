@@ -1,6 +1,8 @@
 import copy
 import os
 import yaml
+from fireworks import FireTaskBase
+from fireworks.utilities.fw_serializers import FWSerializable
 from monty.os.path import zpath
 from pymatgen.io.vasp import Outcar
 from pymatgen.io.vasp.sets import DictSet
@@ -154,7 +156,8 @@ class NmrVaspToDBTask(VaspToDBTask):
         self.additional_fields.update(nmr_fields)
         super(NmrVaspToDBTask, self).run_task(fw_spec)
 
-class DictVaspSetupTask():
+
+class DictVaspSetupTask(FireTaskBase, FWSerializable):
     _fw_name = "Dict Vasp Input Setup Task"
 
     def run_task(self, fw_spec):
