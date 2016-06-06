@@ -21,8 +21,18 @@ STEP1:
   POTCAR:
     C: C
     H: H
-    Mg: Mg_sv
+    Mg: Mg
     O: O
+    Na: Na
+    Al: Al
+    Si: Si
+    P: P
+    Cl: Cl
+    K: K_pv
+    Ca: Ca_pv
+    Y: Y_sv
+    Gd: Gd
+
 STEP2:
   INCAR:
     ADDGRID: true
@@ -50,6 +60,16 @@ STEP2:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    Na: Na_sv
+    Al: Al
+    Si: Si
+    P: P_h
+    Cl: Cl_h
+    K: K_pv
+    Ca: Ca_pv
+    Y: Y_sv
+    Gd: Gd
+
 STEP3:
   INCAR:
     ADDGRID: true
@@ -80,3 +100,12 @@ STEP3:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    Na: Na_sv
+    Al: Al
+    Si: Si
+    P: P_h
+    Cl: Cl_h
+    K: K_pv
+    Ca: Ca_pv
+    Y: Y_sv
+    Gd: Gd

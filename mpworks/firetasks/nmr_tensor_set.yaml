@@ -22,6 +22,16 @@ CS:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    Na: Na_sv
+    Al: Al
+    Si: Si
+    P: P_h
+    Cl: Cl_h
+    K: K_pv
+    Ca: Ca_pv
+    Y: Y_sv
+    Gd: Gd
+
 EFG:
   INCAR:
     EDIFF: -1.0e-06
@@ -124,3 +134,12 @@ EFG:
     H: H
     Mg: Mg_sv
     O: O
+    Na: Na_sv
+    Al: Al
+    Si: Si
+    P: P
+    Cl: Cl
+    K: K_pv
+    Ca: Ca_pv
+    Y: Y_sv
+    Gd: Gd
