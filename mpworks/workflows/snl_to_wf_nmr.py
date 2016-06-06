@@ -127,7 +127,7 @@ def snl_to_wf_nmr(snl, parameters):
                                   priority, copy.deepcopy(structure), additional_run_tags)
         fws.append(vasp_fw)
         nmr_task_type = vasp_fw.spec['task_type']
-        connections[geom_calc_fwid].extend([nmr_calc_fwid])
+        connections[geom_db_fwid].extend([nmr_calc_fwid])
 
         # insert into DB
         task_class = NmrVaspToDBTask
