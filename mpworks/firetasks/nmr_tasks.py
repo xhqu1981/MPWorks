@@ -128,6 +128,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
 
     spec['_dupefinder'] = DupeFinderVasp().to_dict()
     spec['task_type'] = config_name
+    spec['vaspinputset_name'] = config_name + ' DictSet'
 
     return spec
 
