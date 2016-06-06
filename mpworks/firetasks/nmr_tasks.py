@@ -104,14 +104,10 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
                                       incar_enforce, parameters=parameters)
     incar = mpvis.incar
     poscar = mpvis.poscar
-    kpoints = mpvis.kpoints
     potcar = mpvis.potcar
 
-    spec['vasp'] = {}
-    spec['vasp']['incar'] = incar
-    spec['vasp']['poscar'] = poscar
-    spec['vasp']['kpoints'] = kpoints
-    spec['vasp']['potcar'] = potcar
+    spec["input_set_config_dict"] = config_dict
+    spec["input_set_incar_enforce"] = incar_enforce
     spec["custodian_default_input_set"] = mpvis
 
     # Add run tags of pseudopotential
@@ -157,3 +153,19 @@ class NmrVaspToDBTask(VaspToDBTask):
             raise ValueError("Unsupported Task Type: \"{}\"".format(prev_task_type))
         self.additional_fields.update(nmr_fields)
         super(NmrVaspToDBTask, self).run_task(fw_spec)
+
+class DictVaspSetupTask():
+    _fw_name = "Dict Vasp Input Setup Task"
+
+    def run_task(self, fw_spec):
+        config_dict = fw_spec["input_set_config_dict"]
+        incar_enforce = fw_spec["input_set_incar_enforce"]
+        mpsnl = fw_spec["mpsnl"]
+        structure = mpsnl.structure
+        vis = DictSet(structure, config_dict=config_dict,
+                      user_incar_settings=incar_enforce)
+
+        vis.incar.write_file("INCAR")
+        vis.poscar.write_file("POSCAR")
+        vis.potcar.write_file("POTCAR")
+        vis.kpoints.write_file("KPOINTS")

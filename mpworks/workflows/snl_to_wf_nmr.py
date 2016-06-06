@@ -8,7 +8,7 @@ from pymatgen import Composition
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderDB
 from mpworks.firetasks.custodian_task import get_custodian_task
-from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask
+from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask, DictVaspSetupTask
 from mpworks.firetasks.snl_tasks import AddSNLTask
 from mpworks.firetasks.vasp_io_tasks import VaspWriterTask, VaspCopyTask, VaspToDBTask
 from mpworks.snl_utils.mpsnl import MPStructureNL, get_meta_from_structure
@@ -34,14 +34,7 @@ def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, 
     spec['_priority'] = priority
     spec['_queueadapter'] = QA_VASP
     spec['_trackers'] = trackers
-    tasks = list()
-    tasks.append(VaspWriterTask())
-    if copy_contcar:
-        parameters["use_CONTCAR"] = True
-        parameters["files"] = ["CONTCAR"]
-        parameters["keep_velocities"] = False
-        tasks.append(VaspCopyTask(parameters=parameters))
-    tasks.append(get_custodian_task(spec))
+    tasks = [DictVaspSetupTask(), get_custodian_task(spec)]
     vasp_fw = Firework(tasks, spec, name=get_slug(nick_name + '--' + spec['task_type']),
                        fw_id=fwid)
     return vasp_fw
