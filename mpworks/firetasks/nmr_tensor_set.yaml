@@ -15,6 +15,7 @@ CS:
     NSLPLINE: true
     PREC: ACCURATE
     SIGMA: 0.01
+    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 6000
   POTCAR:

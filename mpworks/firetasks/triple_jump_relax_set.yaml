@@ -53,6 +53,7 @@ STEP2:
     POTIM: 0
     PREC: ACCURATE
     SIGMA: 0.03
+    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 3000
   POTCAR:
@@ -92,6 +93,7 @@ STEP3:
     POTIM: 0
     PREC: ACCURATE
     SIGMA: 0.01
+    SYMPREC: 1.0E-8
     TIMESTEP: 0.05
   KPOINTS:
     grid_density: 6000
