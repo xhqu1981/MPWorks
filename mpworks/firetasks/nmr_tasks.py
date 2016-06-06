@@ -108,7 +108,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     poscar = mpvis.poscar
     potcar = mpvis.potcar
 
-    spec["input_set_config_dict"] = config_dict
+    spec["input_set_config_dict"] = mpvis.config_dict
     spec["input_set_incar_enforce"] = incar_enforce
     spec["custodian_default_input_set"] = mpvis
 
