@@ -250,7 +250,9 @@ class MPVaspDrone(VaspToDbTaskDrone):
                 d['deformation_matrix'] = fw_dict['spec']['deformation_matrix']
                 d['original_task_id'] = fw_dict['spec']['original_task_id']
             if not self.update_duplicates:
-                if 'optimize structure' in d['task_type'] and 'output' in d:
+                if ('optimize structure' in d['task_type'] or
+                            'Triple Jump Relax' in d['task_type']) \
+                        and 'output' in d:
                     # create a new SNL based on optimized structure
                     new_s = Structure.from_dict(d['output']['crystal'])
                     old_snl = StructureNL.from_dict(d['snl'])
