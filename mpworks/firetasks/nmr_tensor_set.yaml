@@ -127,7 +127,8 @@ EFG:
         Hg-201: 387.6
       Ra:
         Ra-223: 1210.3
-    SIGMA: 0
+    SIGMA: 0.05
+    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 3000
   POTCAR:
