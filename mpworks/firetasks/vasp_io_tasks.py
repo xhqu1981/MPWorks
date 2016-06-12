@@ -151,7 +151,7 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         if WFSettings().MOVE_TO_GARDEN_DEV:
             prev_dir = move_to_garden(prev_dir, prod=False)
 
-        elif WFSettings.MOVE_TO_GARDEN_PROD:
+        elif WFSettings().MOVE_TO_GARDEN_PROD:
             prev_dir = move_to_garden(prev_dir, prod=True)
 
         # get the directory containing the db file

@@ -150,7 +150,7 @@ class NmrVaspToDBTask(VaspToDBTask):
                 WFSettings().MOVE_TO_GARDEN_PROD = True
             elif 'test' in db_creds['database']:
                 WFSettings().MOVE_TO_GARDEN_DEV = True
-        if 'nmr' not in WFSettings.GARDEN:
+        if 'nmr' not in WFSettings().GARDEN:
             WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
         prev_dir = get_loc(fw_spec['prev_vasp_dir'])
         outcar = Outcar(zpath(os.path.join(prev_dir, "OUTCAR")))
