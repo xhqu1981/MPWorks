@@ -146,7 +146,7 @@ class NmrVaspToDBTask(VaspToDBTask):
         nmr_fields = dict()
         if prev_task_type == "NMR CS":
             outcar.read_chemical_shifts()
-            cs_fiels = {"chemical_shifts": [x.as_dict() for x in outcar.data["chemical_shifts"]]}
+            cs_fiels = {"chemical_shifts": [x.as_dict() for x in outcar.data["chemical_shifts"]["valence_only"]]}
             nmr_fields.update(cs_fiels)
         elif prev_task_type == "NMR EFG":
             outcar.read_nmr_efg()
