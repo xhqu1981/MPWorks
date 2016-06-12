@@ -154,7 +154,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             mpi_cmd=mpi_cmd,
             nproc=nproc,
             tpn_flag=tasks_per_node_flag[mpi_cmd],
-            tpn=fw_data.SUB_NPROCS,
+            tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
             nl_flag=nodelist_flag[mpi_cmd],
             nl=','.join(fw_data.NODE_LIST),
             vasp_cmd=fw_env.get("vasp_cmd", "vasp")))
@@ -162,7 +162,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             mpi_cmd=mpi_cmd,
             nproc=nproc,
             tpn_flag=tasks_per_node_flag[mpi_cmd],
-            tpn=fw_data.SUB_NPROCS,
+            tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
             nl_flag=nodelist_flag[mpi_cmd],
             nl=','.join(fw_data.NODE_LIST),
             vasp_cmd=fw_env.get("gvasp_cmd", "gvasp")))
