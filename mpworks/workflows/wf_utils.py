@@ -4,7 +4,7 @@ import shutil
 import time
 import traceback
 from monty.os.path import zpath
-from mpworks.workflows.wf_settings import RUN_LOCS, GARDEN
+from mpworks.workflows import wf_settings
 
 
 __author__ = 'Anubhav Jain'
@@ -64,7 +64,7 @@ def get_loc(m_dir):
         return m_dir
     block_part = get_block_part(m_dir)
 
-    for preamble in RUN_LOCS:
+    for preamble in wf_settings.RUN_LOCS:
         new_loc = os.path.join(preamble, block_part)
         if os.path.exists(new_loc):
             return new_loc
@@ -74,7 +74,7 @@ def get_loc(m_dir):
 
 def move_to_garden(m_dir, prod=False):
     block_part = get_block_part(m_dir)
-    garden_part = GARDEN if prod else GARDEN+'/dev'
+    garden_part = wf_settings.GARDEN if prod else wf_settings.GARDEN+'/dev'
     f_dir = os.path.join(garden_part, block_part)
     if os.path.exists(m_dir) and not os.path.exists(f_dir) and m_dir != f_dir:
         try:
