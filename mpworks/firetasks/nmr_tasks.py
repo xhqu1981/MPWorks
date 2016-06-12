@@ -10,7 +10,7 @@ from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
 from mpworks.firetasks.vasp_io_tasks import VaspToDBTask
-from mpworks.workflows import wf_settings
+from mpworks.workflows.wf_settings import WFSettings
 from mpworks.workflows.wf_utils import get_loc
 
 __author__ = 'Xiaohui Qu'
@@ -147,11 +147,11 @@ class NmrVaspToDBTask(VaspToDBTask):
         with open(db_path) as f:
             db_creds = json.load(f)
             if 'prod' in db_creds['database']:
-                wf_settings.MOVE_TO_GARDEN_PROD = True
+                WFSettings().MOVE_TO_GARDEN_PROD = True
             elif 'test' in db_creds['database']:
-                wf_settings.MOVE_TO_GARDEN_DEV = True
-        if 'nmr' not in wf_settings.GARDEN:
-            wf_settings.GARDEN = os.path.join(wf_settings.GARDEN, 'nmr')
+                WFSettings().MOVE_TO_GARDEN_DEV = True
+        if 'nmr' not in WFSettings.GARDEN:
+            WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
         prev_dir = get_loc(fw_spec['prev_vasp_dir'])
         outcar = Outcar(zpath(os.path.join(prev_dir, "OUTCAR")))
         prev_task_type = fw_spec['prev_task_type']

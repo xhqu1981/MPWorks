@@ -1,3 +1,5 @@
+from monty.design_patterns import singleton
+
 __author__ = 'Anubhav Jain'
 __copyright__ = 'Copyright 2013, The Materials Project'
 __version__ = '0.1'
@@ -12,18 +14,27 @@ QA_VASP_SMALL = {'nnodes': 2, 'nodes': 2, 'walltime': '48:00:00'}  # small wallt
 QA_DB = {'nnodes': 1, 'nodes' : 1, 'walltime': '2:00:00'}
 QA_CONTROL = {'nnodes': 1, 'nodes': 1, 'walltime': '00:30:00'}
 
-MOVE_TO_GARDEN_DEV = False
-MOVE_TO_GARDEN_PROD = False
+@singleton
+class WFSettings(object):
+    """
+    This class stores settings for the Workflows. Use Singleton to enable runtime dynamic chage
+    """
 
-GARDEN = '/project/projectdirs/matgen/garden'
+    def __init__(self):
+        self.MOVE_TO_GARDEN_DEV = False
+        self.MOVE_TO_GARDEN_PROD = False
+        self.GARDEN = '/project/projectdirs/matgen/garden'
 
-RUN_LOCS = [GARDEN, GARDEN+'/dev',
-            '/project/projectdirs/matgen/garden/control_blocks',
-            '/project/projectdirs/matgen/scratch',
-            '/global/scratch/sd/matcomp/', '/global/homes/m/matcomp',
-            '/scratch/scratchdirs/matcomp/', '/scratch2/scratchdirs/matcomp/',
-            '/global/scratch/sd/matcomp/aj_tests/',
-            '/global/scratch/sd/matcomp/wc_tests/',
-            '/global/scratch/sd/matcomp/aj_prod/',
-            '/global/scratch2/sd/matcomp/mp_prod/',
-            '/global/scratch2/sd/matcomp/mp_prod_hopper/']
+    @property
+    def RUN_LOCS(self):
+        return [self.GARDEN, self.GARDEN + '/dev',
+                '/project/projectdirs/matgen/garden/control_blocks',
+                '/project/projectdirs/matgen/scratch',
+                '/global/scratch/sd/matcomp/', '/global/homes/m/matcomp',
+                '/scratch/scratchdirs/matcomp/', '/scratch2/scratchdirs/matcomp/',
+                '/global/scratch/sd/matcomp/aj_tests/',
+                '/global/scratch/sd/matcomp/wc_tests/',
+                '/global/scratch/sd/matcomp/aj_prod/',
+                '/global/scratch2/sd/matcomp/mp_prod/',
+                '/global/scratch2/sd/matcomp/mp_prod_hopper/']
+
