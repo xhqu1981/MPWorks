@@ -1,6 +1,8 @@
 from gzip import GzipFile
 import logging
 import socket
+
+from fireworks.fw_config import FWData
 from monty.os.path import which
 from custodian.vasp.handlers import VaspErrorHandler, NonConvergingErrorHandler, \
     FrozenJobErrorHandler, MeshSymmetryErrorHandler, PositiveEnergyErrorHandler
@@ -97,10 +99,14 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         if nproc is None:
             raise ValueError("None of the env vars {} found to set nproc!".format(env_vars))
 
-        v_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("vasp_cmd", "vasp")))
-        gv_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("gvasp_cmd", "gvasp")))
+        fw_data = FWData()
+        if (not fw_data.MULTIPROCESSING) or (fw_data.NODE_LIST is None):
+            v_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("vasp_cmd", "vasp")))
+            gv_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("gvasp_cmd", "gvasp")))
+        else:
+            v_exe, gv_exe = self._get_vasp_cmd_in_job_packing(fw_data, fw_env, mpi_cmd, nproc)
 
-        print 'host:', os.environ['HOSTNAME']
+        print('host:', os.environ['HOSTNAME'])
 
         for job in self.jobs:
             job.vasp_cmd = v_exe
@@ -136,6 +142,31 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'parameters': fw_spec.get('parameters')}
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
+
+    def _get_vasp_cmd_in_job_packing(self, fw_data, fw_env, mpi_cmd, nproc):
+        tasks_per_node_flag = {"srun": "--ntasks-per-node",
+                               "mpirun": "--npernode",
+                               "aprun": "-N"}
+        nodelist_flag = {"srun": "--nodelist",
+                         "mpirun": "--host",
+                         "aprun": "-L"}
+        v_exe = shlex.split('{mpi_cmd} -n {nproc} {tpn_flag} {tpn} {nl_flag} {nl} {vasp_cmd}'.format(
+            mpi_cmd=mpi_cmd,
+            nproc=nproc,
+            tpn_flag=tasks_per_node_flag[mpi_cmd],
+            tpn=fw_data.SUB_NPROCS,
+            nl_flag=nodelist_flag[mpi_cmd],
+            nl=','.join(fw_data.NODE_LIST),
+            vasp_cmd=fw_env.get("vasp_cmd", "vasp")))
+        gv_exe = shlex.split('{mpi_cmd} -n {nproc} {tpn_flag} {tpn} {nl_flag} {nl} {vasp_cmd}'.format(
+            mpi_cmd=mpi_cmd,
+            nproc=nproc,
+            tpn_flag=tasks_per_node_flag[mpi_cmd],
+            tpn=fw_data.SUB_NPROCS,
+            nl_flag=nodelist_flag[mpi_cmd],
+            nl=','.join(fw_data.NODE_LIST),
+            vasp_cmd=fw_env.get("gvasp_cmd", "gvasp")))
+        return v_exe, gv_exe
 
     def _write_formula_file(self, fw_spec):
         filename = get_slug(
