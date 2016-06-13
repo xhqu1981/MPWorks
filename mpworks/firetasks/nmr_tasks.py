@@ -74,7 +74,7 @@ def _config_dict_to_input_set(config_dict, structure, incar_enforce, parameters)
     return vis
 
 
-def _change_garden_setting(self):
+def _change_garden_setting():
     db_dir = os.environ['DB_LOC']
     db_path = os.path.join(db_dir, 'tasks_db.json')
     with open(db_path) as f:
