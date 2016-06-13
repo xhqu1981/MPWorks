@@ -3,6 +3,7 @@ import json
 import os
 import yaml
 from fireworks import FireTaskBase
+from fireworks.core.firework import FWAction
 from fireworks.utilities.fw_serializers import FWSerializable
 from monty.os.path import zpath
 from pymatgen.io.vasp import Outcar
@@ -71,6 +72,19 @@ def _config_dict_to_input_set(config_dict, structure, incar_enforce, parameters)
     vis = DictSet(structure, config_dict=processed_config_dict,
                   user_incar_settings=incar_enforce)
     return vis
+
+
+def _change_garden_setting(self):
+    db_dir = os.environ['DB_LOC']
+    db_path = os.path.join(db_dir, 'tasks_db.json')
+    with open(db_path) as f:
+        db_creds = json.load(f)
+        if 'prod' in db_creds['database']:
+            WFSettings().MOVE_TO_GARDEN_PROD = True
+        elif 'test' in db_creds['database']:
+            WFSettings().MOVE_TO_GARDEN_DEV = True
+    if 'nmr' not in WFSettings().GARDEN:
+        WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
 
 
 def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_run_tags=()):
@@ -142,16 +156,7 @@ class NmrVaspToDBTask(VaspToDBTask):
         super(NmrVaspToDBTask, self).__init__(parameters)
 
     def run_task(self, fw_spec):
-        db_dir = os.environ['DB_LOC']
-        db_path = os.path.join(db_dir, 'tasks_db.json')
-        with open(db_path) as f:
-            db_creds = json.load(f)
-            if 'prod' in db_creds['database']:
-                WFSettings().MOVE_TO_GARDEN_PROD = True
-            elif 'test' in db_creds['database']:
-                WFSettings().MOVE_TO_GARDEN_DEV = True
-        if 'nmr' not in WFSettings().GARDEN:
-            WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
+        _change_garden_setting()
         prev_dir = get_loc(fw_spec['prev_vasp_dir'])
         outcar = Outcar(zpath(os.path.join(prev_dir, "OUTCAR")))
         prev_task_type = fw_spec['prev_task_type']
@@ -167,7 +172,7 @@ class NmrVaspToDBTask(VaspToDBTask):
         else:
             raise ValueError("Unsupported Task Type: \"{}\"".format(prev_task_type))
         self.additional_fields.update(nmr_fields)
-        super(NmrVaspToDBTask, self).run_task(fw_spec)
+        return super(NmrVaspToDBTask, self).run_task(fw_spec)
 
 
 class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
@@ -177,17 +182,8 @@ class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
         super(TripleJumpRelaxVaspToDBTask, self).__init__(parameters)
 
     def run_task(self, fw_spec):
-        db_dir = os.environ['DB_LOC']
-        db_path = os.path.join(db_dir, 'tasks_db.json')
-        with open(db_path) as f:
-            db_creds = json.load(f)
-            if 'prod' in db_creds['database']:
-                WFSettings().MOVE_TO_GARDEN_PROD = True
-            elif 'test' in db_creds['database']:
-                WFSettings().MOVE_TO_GARDEN_DEV = True
-        if 'nmr' not in WFSettings().GARDEN:
-            WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
-        super(TripleJumpRelaxVaspToDBTask, self).run_task(fw_spec)
+        _change_garden_setting()
+        return super(TripleJumpRelaxVaspToDBTask, self).run_task(fw_spec)
 
 
 class DictVaspSetupTask(FireTaskBase, FWSerializable):
@@ -205,3 +201,4 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         vis.poscar.write_file("POSCAR")
         vis.potcar.write_file("POTCAR")
         vis.kpoints.write_file("KPOINTS")
+        return FWAction(stored_data={"vasp_input_set": vis.as_dict()})
