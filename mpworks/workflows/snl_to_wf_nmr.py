@@ -8,7 +8,7 @@ from pymatgen import Composition
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderDB
 from mpworks.firetasks.custodian_task import get_custodian_task
-from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask, DictVaspSetupTask
+from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask, DictVaspSetupTask, TripleJumpRelaxVaspToDBTask
 from mpworks.firetasks.snl_tasks import AddSNLTask
 from mpworks.firetasks.vasp_io_tasks import VaspWriterTask, VaspCopyTask, VaspToDBTask
 from mpworks.snl_utils.mpsnl import MPStructureNL, get_meta_from_structure
@@ -109,7 +109,7 @@ def snl_to_wf_nmr(snl, parameters):
             connections[prev_db_fwid] = [geom_calc_fwid]
 
         # insert into DB
-        task_class = VaspToDBTask
+        task_class = TripleJumpRelaxVaspToDBTask
         prev_task_type = geom_task_type
         geom_db_fwid = cur_fwid
         cur_fwid += 1

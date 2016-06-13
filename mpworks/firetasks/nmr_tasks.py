@@ -170,6 +170,26 @@ class NmrVaspToDBTask(VaspToDBTask):
         super(NmrVaspToDBTask, self).run_task(fw_spec)
 
 
+class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
+    _fw_name = "Triple Jump Relax to Database Task"
+
+    def __init__(self, parameters=None):
+        super(TripleJumpRelaxVaspToDBTask, self).__init__(parameters)
+
+    def run_task(self, fw_spec):
+        db_dir = os.environ['DB_LOC']
+        db_path = os.path.join(db_dir, 'tasks_db.json')
+        with open(db_path) as f:
+            db_creds = json.load(f)
+            if 'prod' in db_creds['database']:
+                WFSettings().MOVE_TO_GARDEN_PROD = True
+            elif 'test' in db_creds['database']:
+                WFSettings().MOVE_TO_GARDEN_DEV = True
+        if 'nmr' not in WFSettings().GARDEN:
+            WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
+        super(TripleJumpRelaxVaspToDBTask, self).run_task(fw_spec)
+
+
 class DictVaspSetupTask(FireTaskBase, FWSerializable):
     _fw_name = "Dict Vasp Input Setup Task"
 
