@@ -160,15 +160,15 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         vasp_cmds = [fw_env.get("vasp_cmd", "vasp"), fw_env.get("gvasp_cmd", "gvasp")]
         vasp_exes = [shlex.split('{mpi_cmd} {nodes_spec} {ranks_flag} {nproc} {tpn_flag} {tpn} '
                                  '{nl_flag} {nl} {vasp_cmd}'.
-            format(mpi_cmd=mpi_cmd,
-                   nodes_spec=nodes_spec,
-                   ranks_flag=ranks_num_flag,
-                   nproc=nproc,
-                   tpn_flag=tasks_per_node_flag[mpirun],
-                   tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
-                   nl_flag=nodelist_flag[mpirun],
-                   nl=','.join(fw_data.NODE_LIST),
-                   vasp_cmd=vasp_cmd))
+                                 format(mpi_cmd=mpi_cmd,
+                                        nodes_spec=nodes_spec[mpirun],
+                                        ranks_flag=ranks_num_flag[mpirun],
+                                        nproc=nproc,
+                                        tpn_flag=tasks_per_node_flag[mpirun],
+                                        tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
+                                        nl_flag=nodelist_flag[mpirun],
+                                        nl=','.join(fw_data.NODE_LIST),
+                                        vasp_cmd=vasp_cmd))
                      for vasp_cmd in vasp_cmds]
         v_exe, gv_exe = vasp_exes
         return v_exe, gv_exe
