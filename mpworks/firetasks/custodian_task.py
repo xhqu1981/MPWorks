@@ -25,6 +25,7 @@ __maintainer__ = 'Anubhav Jain'
 __email__ = 'ajain@lbl.gov'
 __date__ = 'Mar 15, 2013'
 
+
 def check_incar(task_type):
     errors = []
     incar = Incar.from_file("INCAR")
@@ -43,10 +44,10 @@ def check_incar(task_type):
     if 'static' in task_type and not incar["LCHARG"]:
             errors.append("LCHARG must be True for static runs")
 
-    if 'Uniform' in task_type and incar["ICHARG"]!=11:
+    if 'Uniform' in task_type and incar["ICHARG"] != 11:
             errors.append("ICHARG must be 11 for Uniform runs")
 
-    if 'band structure' in task_type and incar["ICHARG"]!=11:
+    if 'band structure' in task_type and incar["ICHARG"] != 11:
             errors.append("ICHARG must be 11 for band structure runs")
 
     if 'GGA+U' in task_type:
@@ -119,7 +120,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             raise ValueError("Critical error: INCAR does not pass checks: {}".format(incar_errors))
 
         logging.basicConfig(level=logging.DEBUG)
-        c = Custodian(self.handlers, self.jobs, max_errors=self.max_errors, gzipped_output=False, validators=[VasprunXMLValidator()])  # manual gzip
+        c = Custodian(self.handlers, self.jobs, max_errors=self.max_errors, gzipped_output=False,
+                      validators=[VasprunXMLValidator()])  # manual gzip
         custodian_out = c.run()
 
         if self.gzip_output:
@@ -145,7 +147,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
 
-    def _get_vasp_cmd_in_job_packing(self, fw_data, fw_env, mpi_cmd):
+    @staticmethod
+    def _get_vasp_cmd_in_job_packing(fw_data, fw_env, mpi_cmd):
         tasks_per_node_flag = {"srun": "--ntasks-per-node",
                                "mpirun": "--npernode",
                                "aprun": "-N"}
@@ -179,10 +182,11 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         v_exe, gv_exe = vasp_exes
         return v_exe, gv_exe
 
-    def _write_formula_file(self, fw_spec):
+    @staticmethod
+    def _write_formula_file(fw_spec):
         filename = get_slug(
-            'JOB--' + fw_spec['mpsnl'].structure.composition.reduced_formula + '--'
-            + fw_spec['task_type'])
+            'JOB--' + fw_spec['mpsnl'].structure.composition.reduced_formula +
+            '--' + fw_spec['task_type'])
         with open(filename, 'w+') as f:
             f.write('')
 
