@@ -93,9 +93,11 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         # TODO: last two env vars, i.e. SGE and LoadLeveler, are untested
         env_vars = ['PBS_NP', 'SLURM_NTASKS', 'NSLOTS', 'LOADL_TOTAL_TASKS']
+        nproc = None
         for env_var in env_vars:
             nproc = os.environ.get(env_var, None)
-            if nproc is not None: break
+            if nproc is not None:
+                break
         if nproc is None:
             raise ValueError("None of the env vars {} found to set nproc!".format(env_vars))
 
@@ -104,7 +106,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             v_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("vasp_cmd", "vasp")))
             gv_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("gvasp_cmd", "gvasp")))
         else:
-            v_exe, gv_exe = self._get_vasp_cmd_in_job_packing(fw_data, fw_env, mpi_cmd, nproc)
+            v_exe, gv_exe = self._get_vasp_cmd_in_job_packing(fw_data, fw_env, mpi_cmd)
 
         print('host:', os.environ['HOSTNAME'])
 
@@ -143,7 +145,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
 
-    def _get_vasp_cmd_in_job_packing(self, fw_data, fw_env, mpi_cmd, nproc):
+    def _get_vasp_cmd_in_job_packing(self, fw_data, fw_env, mpi_cmd):
         tasks_per_node_flag = {"srun": "--ntasks-per-node",
                                "mpirun": "--npernode",
                                "aprun": "-N"}
@@ -157,13 +159,17 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                       "mpirun": "",
                       "aprun": ""}
         mpirun = mpi_cmd.split()[0]
+        fw_data = FWData()
+        #  Don't honor the SLURM_NTASKS in case of job packing, Because SLURM_NTASKS is referring
+        #  to total number of processes of the parent job
+        sub_nproc = fw_data.SUB_NPROCS
         vasp_cmds = [fw_env.get("vasp_cmd", "vasp"), fw_env.get("gvasp_cmd", "gvasp")]
         vasp_exes = [shlex.split('{mpi_cmd} {nodes_spec} {ranks_flag} {nproc} {tpn_flag} {tpn} '
                                  '{nl_flag} {nl} {vasp_cmd}'.
                                  format(mpi_cmd=mpi_cmd,
                                         nodes_spec=nodes_spec[mpirun],
                                         ranks_flag=ranks_num_flag[mpirun],
-                                        nproc=nproc,
+                                        nproc=sub_nproc,
                                         tpn_flag=tasks_per_node_flag[mpirun],
                                         tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
                                         nl_flag=nodelist_flag[mpirun],
