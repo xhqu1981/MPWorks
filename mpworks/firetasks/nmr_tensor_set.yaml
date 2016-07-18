@@ -2,10 +2,11 @@ CS:
   INCAR:
     DQ: 0.001
     EDIFF: -1.0e-10
-    ENCUT_ENHANCE_RATIO: 0.75
+    ENCUT_ENHANCE_RATIO: 0.4
     ICHIBARE: 1
     ISMEAR: -5
     ISTART: 0
+    ISYM: 0
     LCHARG: false
     LCHIMAG: true
     LNMR_SYM_RED: true
@@ -15,7 +16,6 @@ CS:
     NSLPLINE: true
     PREC: ACCURATE
     SIGMA: 0.01
-    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 6000
   POTCAR:
@@ -39,6 +39,7 @@ EFG:
     ENCUT_ENHANCE_RATIO: 0.2
     ISMEAR: -5
     ISTART: 0
+    ISYM: 0
     LCHARG: false
     LEFG: true
     LREAL: AUTO
@@ -128,7 +129,6 @@ EFG:
       Ra:
         Ra-223: 1210.3
     SIGMA: 0.05
-    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 3000
   POTCAR:
