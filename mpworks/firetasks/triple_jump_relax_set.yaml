@@ -3,7 +3,7 @@ STEP1:
     ALGO: FAST
     EDIFF: -1.0e-06
     EDIFFG: -0.1
-    ENCUT_ENHANCE_RATIO: 0.2
+    ENCUT_ENHANCE_RATIO: 0.1
     IBRION: 1
     ISIF: 3
     ISMEAR: -5
@@ -39,12 +39,13 @@ STEP2:
     ALGO: FAST
     EDIFF: -1.0e-08
     EDIFFG: -0.01
-    ENCUT_ENHANCE_RATIO: 0.25
+    ENCUT_ENHANCE_RATIO: 0.2
     IBRION: 3
     IOPT: 7
     ISIF: 3
     ISMEAR: -5
     ISTART: 0
+    ISYM: 0
     LCHARG: false
     LREAL: AUTO
     LWAVE: false
@@ -53,7 +54,6 @@ STEP2:
     POTIM: 0
     PREC: ACCURATE
     SIGMA: 0.03
-    SYMPREC: 1.0E-8
   KPOINTS:
     grid_density: 3000
   POTCAR:
@@ -77,13 +77,14 @@ STEP3:
     ALGO: FAST
     EDIFF: -1.0e-10
     EDIFFG: -0.002
-    ENCUT_ENHANCE_RATIO: 0.75
+    ENCUT_ENHANCE_RATIO: 0.4
     FTIMEMAX: 0.5
     IBRION: 3
     IOPT: 7
     ISIF: 3
     ISMEAR: -5
     ISTART: 0
+    ISYM: 0
     LCHARG: false
     LREAL: AUTO
     LWAVE: false
@@ -93,7 +94,6 @@ STEP3:
     POTIM: 0
     PREC: ACCURATE
     SIGMA: 0.01
-    SYMPREC: 1.0E-8
     TIMESTEP: 0.05
   KPOINTS:
     grid_density: 6000
