@@ -181,9 +181,17 @@ class SNLGroup():
 
         #try a structure fit to the canonical structure
 
-        # use default Structure Matcher params from April 24, 2013, as suggested by Shyue
-        # we are using the ElementComparator() because this is how we want to group results
-        sm = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True, scale=True,
+        if "NMR" not in cand_snl.projects:
+            # use default Structure Matcher params from April 24, 2013, as suggested by Shyue
+            # we are using the ElementComparator() because this is how we want to group results
+            ltol = 0.2
+            stol = 0.3
+            angle_tol = 5.0
+        else:
+            ltol = 0.02
+            stol = 0.03
+            angle_tol = 0.5
+        sm = StructureMatcher(ltol=ltol, stol=stol, angle_tol=angle_tol, primitive_cell=True, scale=True,
                               attempt_supercell=False, comparator=ElementComparator())
 
         if not sm.fit(cand_snl.structure, self.canonical_structure):
@@ -198,8 +206,9 @@ class SNLGroup():
 
         if has_species_properties(cand_snl.structure):
             for snl in self.species_snl:
-                sms = StructureMatcher(ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=True, scale=True,
-                              attempt_supercell=False, comparator=SpeciesComparator())
+                sms = StructureMatcher(ltol=ltol, stol=stol, angle_tol=angle_tol, primitive_cell=True,
+                                       scale=True, attempt_supercell=False,
+                                       comparator=SpeciesComparator())
                 if sms.fit(cand_snl.structure, snl.structure):
                     spec_group = snl.snl_id
                     self.species_groups[snl.snl_id].append(cand_snl.snl_id)
