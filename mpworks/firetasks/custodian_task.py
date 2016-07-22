@@ -42,7 +42,7 @@ def check_incar(task_type):
             errors.append("NSW must be 0 for non structure optimization runs")
 
     if 'static' in task_type and not incar["LCHARG"]:
-            errors.append("LCHARG must be True for static runs")
+        errors.append("LCHARG must be True for static runs")
 
     if 'Uniform' in task_type and incar["ICHARG"] != 11:
             errors.append("ICHARG must be 11 for Uniform runs")
@@ -104,6 +104,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         fw_data = FWData()
         if (not fw_data.MULTIPROCESSING) or (fw_data.NODE_LIST is None):
+            if "srun" in mpi_cmd:
+                mpi_cmd += " -v"
             v_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("vasp_cmd", "vasp")))
             gv_exe = shlex.split('{} -n {} {}'.format(mpi_cmd, nproc, fw_env.get("gvasp_cmd", "gvasp")))
         else:
