@@ -18,7 +18,7 @@ if __name__ == "__main__":
     setup(name='MPWorks',
           version=__version__,
           description='Materials Project codes',
-          long_description=open(os.path.join(module_dir, 'README.rst', encoding="UTF-16")).read(),
+          long_description=open(os.path.join(module_dir, 'README.rst'), encoding="UTF-16").read(),
           url='https://github.com/materialsproject/MPWorks',
           author='Anubhav Jain',
           author_email='anubhavster@gmail.com',
