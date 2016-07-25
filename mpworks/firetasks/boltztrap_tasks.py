@@ -233,7 +233,7 @@ class BoltztrapRunTask(FireTaskBase, FWSerializable):
             ted['kappa_best_dope19'] = self.get_extreme(ted, 'kappa_eigs', maximize=False, max_didx=4)
 
             try:
-	        from mpcollab.thermoelectrics.boltztrap_TE import BoltzSPB
+                from mpcollab.thermoelectrics.boltztrap_TE import BoltzSPB
                 bzspb = BoltzSPB(ted)
                 maxpf_p = bzspb.get_maximum_power_factor('p', temperature=0, tau=1E-14, ZT=False, kappal=0.5,\
                     otherprops=('get_seebeck_mu_eig', 'get_conductivity_mu_eig', \
