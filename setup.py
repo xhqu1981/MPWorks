@@ -7,18 +7,22 @@ __maintainer__ = "Anubhav Jain"
 __email__ = "ajain@lbl.gov"
 __date__ = "Mar 15, 2013"
 
-from setuptools import setup, find_packages
+import os, sys
+
 from mpworks import __version__
-import os
-import multiprocessing, logging  # AJ: for some reason this is needed to not have "python setup.py test" freak out
+from setuptools import setup, find_packages
 
 module_dir = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == "__main__":
+    if sys.version_info[0] > 2:
+        readme_text = open(os.path.join(module_dir, 'README.rst'), encoding="UTF-16").read()
+    else:
+        readme_text = open(os.path.join(module_dir, 'README.rst')).read()
     setup(name='MPWorks',
           version=__version__,
           description='Materials Project codes',
-          long_description=open(os.path.join(module_dir, 'README.rst'), encoding="UTF-16").read(),
+          long_description=readme_text,
           url='https://github.com/materialsproject/MPWorks',
           author='Anubhav Jain',
           author_email='anubhavster@gmail.com',
