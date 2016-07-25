@@ -1,6 +1,7 @@
 import json
 import os
 import datetime
+import sys
 
 from pymongo import MongoClient, DESCENDING
 from mpworks.snl_utils.mpsnl import MPStructureNL
@@ -34,7 +35,11 @@ def reconstitute_dates(obj_dict):
     if isinstance(obj_dict, list):
         return [reconstitute_dates(v) for v in obj_dict]
 
-    if isinstance(obj_dict, basestring):
+    if sys.version_info[0] > 2:
+        str_type = str
+    else:
+        str_type = basestring
+    if isinstance(obj_dict, str_type):
         try:
             return datetime.datetime.strptime(obj_dict, "%Y-%m-%dT%H:%M:%S.%f")
         except ValueError:
