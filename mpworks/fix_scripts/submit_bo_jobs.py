@@ -20,11 +20,11 @@ if __name__ == "__main__":
 
     for s in os.listdir(os.path.join(module_dir, "snls")):
         if '.json' in s:
-            print 'submitting', s
+            print('submitting', s)
             with open(os.path.join(module_dir, "snls",s)) as f:
                 snl = StructureNL.from_dict(json.load(f))
                 sma.submit_snl(snl, 'anubhavster@gmail.com', {"priority": 10})
-            print 'DONE submitting', s
+            print('DONE submitting', s)
 
 
-print 'DONE!'
+print('DONE!')

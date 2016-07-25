@@ -24,15 +24,15 @@ logger = logging.getLogger('mg.build.osti_doi')
 logger.setLevel(getattr(logging, loglevel))
 
 db_yaml = 'materials_db_{}.yaml'.format('prod' if args.prod else 'dev')
-print db_yaml
+print(db_yaml)
 if args.reset or args.info or args.plotly:
     matad = OstiMongoAdapter.from_config(db_yaml=db_yaml)
     if args.reset:
         matad._reset()
     elif args.info:
-        print '{} DOIs in DOI collection.'.format(matad.doicoll.count())
+        print('{} DOIs in DOI collection.'.format(matad.doicoll.count()))
         dois = matad.get_all_dois()
-        print '{}/{} materials have DOIs.'.format(len(dois), matad.matcoll.count())
+        print('{}/{} materials have DOIs.'.format(len(dois), matad.matcoll.count()))
     elif args.plotly:
         import os, datetime
         import plotly.plotly as py
@@ -56,7 +56,7 @@ if args.reset or args.info or args.plotly:
             ) for idx,count in enumerate(counts)
         ])
         filename = 'dois_{}'.format(today)
-        print py.plot(data, filename=filename, auto_open=False)
+        print(py.plot(data, filename=filename, auto_open=False))
 else:
     # generate records for either n or all (n=0) not-yet-submitted materials 
     # OR generate records for specific materials (submitted or not)

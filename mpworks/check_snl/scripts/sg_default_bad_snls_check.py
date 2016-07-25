@@ -119,4 +119,4 @@ for snl in sma.snl.find(
         nonvalid_snlids.append(snl['snl_id'])
     else:
         valid_snlids.append(snl['snl_id'])
-print len(valid_snlids), len(nonvalid_snlids)
+print(len(valid_snlids), len(nonvalid_snlids))

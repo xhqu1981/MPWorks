@@ -45,7 +45,7 @@ num_pairs_max = num_snlgroups*(num_snlgroups-1)/2
 num_snl_streams = div_plus_mod(num_snls, num_ids_per_stream)
 num_snlgroup_streams = div_plus_mod(num_snlgroups, num_ids_per_stream)
 num_jobs = div_plus_mod(num_pairs_max, num_pairs_per_job)
-print num_snl_streams, num_snlgroup_streams, num_jobs
+print(num_snl_streams, num_snlgroup_streams, num_jobs)
 
 checks = ['spacegroups', 'groupmembers', 'canonicals']
 categories = [ 'SG Change', 'SG Default', 'PybTeX', 'Others' ]
@@ -326,7 +326,7 @@ def analyze(args):
             snlgroup_keys = {}
             for d in snlgrp_cursor:
                 snlgroup_keys[d['snlgroup_id']] = d['canonical_snl']['snlgroup_key']
-            print snlgroup_keys[40890]
+            print(snlgroup_keys[40890])
             sma2 = SNLMongoAdapter.from_file(
                 os.path.join(os.environ['DB_LOC'], 'materials_db.yaml')
             )
@@ -353,7 +353,7 @@ def analyze(args):
                     'band_gap': band_gap, 'task_id': material['task_id'],
                     'volume_per_atom': volume_per_atom
                 }
-            print snlgroup_data[40890]
+            print(snlgroup_data[40890])
             filestem = 'mpworks/check_snl/results/bad_snlgroups_2_'
             with open(filestem+'in_matdb.csv', 'wb') as f, \
                     open(filestem+'notin_matdb.csv', 'wb') as g:
@@ -402,7 +402,7 @@ def analyze(args):
                         rms_dist = matcher.get_rms_dist(primary_structure, secondary_structure)
                         if rms_dist is not None:
                             rms_dist_str = "({0:.3g},{1:.3g})".format(*rms_dist)
-                            print rms_dist_str
+                            print(rms_dist_str)
                     row = [
                         category, composition,
                         primary_id, primary_sg_num,
@@ -420,13 +420,13 @@ def analyze(args):
             out_fig = Figure()
             badsnls_trace = Scatter(x=[], y=[], text=[], mode='markers', name='SG Changes')
             bisectrix = Scatter(x=[0,230], y=[0,230], mode='lines', name='bisectrix')
-            print 'pulling bad snls from plotly ...'
+            print('pulling bad snls from plotly ...')
             bad_snls = OrderedDict()
             for category, text in zip(fig['data'][2]['y'], fig['data'][2]['text']):
                 for snl_id in map(int, text.split('<br>')):
                     bad_snls[snl_id] = category
             with open('mpworks/check_snl/results/bad_snls.csv', 'wb') as f:
-                print 'pulling bad snls from database ...'
+                print('pulling bad snls from database ...')
                 mpsnl_cursor = sma.snl.find({
                     'snl_id': { '$in': bad_snls.keys() },
                     'about.projects': {'$ne': 'CederDahn Challenge'}
@@ -435,7 +435,7 @@ def analyze(args):
                 writer.writerow([
                     'snl_id', 'category', 'snlgroup_key', 'nsites', 'remarks', 'projects', 'authors'
                 ])
-                print 'writing bad snls to file ...'
+                print('writing bad snls to file ...')
                 for mpsnl_dict in mpsnl_cursor:
                     mpsnl = MPStructureNL.from_dict(mpsnl_dict)
                     row = [ mpsnl.snl_id, bad_snls[mpsnl.snl_id], mpsnl.snlgroup_key ]
@@ -450,8 +450,8 @@ def analyze(args):
                         badsnls_trace['y'].append(sf.get_spacegroup_number())
                         badsnls_trace['text'].append(mpsnl.snl_id)
                         if bad_snls[mpsnl.snl_id] == 'SG default':
-                            print sg_num, sf.get_spacegroup_number()
-                print 'plotting out-fig ...'
+                            print(sg_num, sf.get_spacegroup_number())
+                print('plotting out-fig ...')
                 out_fig['data'] = Data([bisectrix, badsnls_trace])
                 out_fig['layout'] = Layout(
                     showlegend=False, hovermode='closest',
@@ -467,7 +467,7 @@ def analyze(args):
                 ltol=0.2, stol=0.3, angle_tol=5, primitive_cell=False, scale=True,
                 attempt_supercell=True, comparator=ElementComparator()
             )
-            print 'pulling data from plotly ...'
+            print('pulling data from plotly ...')
             trace = Scatter(x=[], y=[], text=[], mode='markers', name='mismatches')
             bad_snls = OrderedDict() # snlgroup_id : [ mismatching snl_ids ]
             for category, text in zip(fig['data'][2]['y'], fig['data'][2]['text']):
@@ -475,7 +475,7 @@ def analyze(args):
                 for entry in text.split('<br>'):
                     fields = entry.split(':')
                     snlgroup_id = int(fields[0].split(',')[0])
-                    print snlgroup_id
+                    print(snlgroup_id)
                     snlgrp_dict = sma.snlgroups.find_one({ 'snlgroup_id': snlgroup_id })
                     snlgrp = SNLGroup.from_dict(snlgrp_dict)
                     s1 = snlgrp.canonical_structure.get_primitive_structure()
@@ -483,7 +483,7 @@ def analyze(args):
                     for i, snl_id in enumerate(fields[1].split(',')):
                         mpsnl_dict = sma.snl.find_one({ 'snl_id': int(snl_id) })
                         if 'CederDahn Challenge' in mpsnl_dict['about']['projects']:
-                            print 'skip CederDahn: %s' % snl_id
+                            print('skip CederDahn: %s' % snl_id)
                             continue
                         mpsnl = MPStructureNL.from_dict(mpsnl_dict)
                         s2 = mpsnl.structure.get_primitive_structure()
@@ -496,13 +496,13 @@ def analyze(args):
                     if len(bad_snls[snlgroup_id]) < 1:
                         bad_snls.pop(snlgroup_id, None)
             with open('mpworks/check_snl/results/bad_snlgroups.csv', 'wb') as f:
-                print 'pulling bad snlgroups from database ...'
+                print('pulling bad snlgroups from database ...')
                 snlgroup_cursor = sma.snlgroups.find({
                     'snlgroup_id': { '$in': bad_snls.keys() },
                 })
                 writer = csv.writer(f)
                 writer.writerow(['snlgroup_id', 'snlgroup_key', 'mismatching snl_ids'])
-                print 'writing bad snlgroups to file ...'
+                print('writing bad snlgroups to file ...')
                 for snlgroup_dict in snlgroup_cursor:
                     snlgroup = SNLGroup.from_dict(snlgroup_dict)
                     row = [
@@ -510,7 +510,7 @@ def analyze(args):
                         ' '.join(bad_snls[snlgroup.snlgroup_id])
                     ]
                     writer.writerow(row)
-            print 'plotting out-fig ...'
+            print('plotting out-fig ...')
             out_fig = Figure()
             out_fig['data'] = Data([trace])
             out_fig['layout'] = Layout(
@@ -544,11 +544,11 @@ def analyze(args):
                     snlgroup_id = start_id + d['x'][idx]
                     mismatch_snl_id, canonical_snl_id = d['text'][idx].split(' != ')
                     bad_snlgroups[snlgroup_id] = int(mismatch_snl_id)
-        print errors
+        print(errors)
         fig_data = fig['data'][-1]
         fig_data['x'] = [ errors[color] for color in fig_data['marker']['color'] ]
         filename = _get_filename()
-        print filename
+        print(filename)
         #py.plot(fig, filename=filename)
         with open('mpworks/check_snl/results/bad_snls.csv', 'wb') as f:
             mpsnl_cursor = sma.snl.find({ 'snl_id': { '$in': bad_snls.keys() } })

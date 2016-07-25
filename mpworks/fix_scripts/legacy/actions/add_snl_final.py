@@ -24,4 +24,4 @@ with open(tasks_f) as f2:
     for d in new_tasks.find({'snlgroup_id_final': {'$exists': False}}, {'task_id': 1, 'snl': 1, 'snlgroup_id': 1, 'snlgroup_changed': 1}):
         new_tasks.update({'task_id': d['task_id']}, {'$set': {'snl_final': d['snl'], 'snlgroup_id_final': d['snlgroup_id'], 'snlgroup_changed': False}})
         count+=1
-        print count
+        print(count)

@@ -90,4 +90,4 @@ if __name__ == '__main__':
       fig['layout'] = layout
       py.plot(fig, filename='builder_stream', auto_open=False)
     else:
-      print 'plotly ImportError'
+      print('plotly ImportError')

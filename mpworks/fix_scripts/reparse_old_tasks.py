@@ -73,14 +73,14 @@ class OldTaskFixer():
                     logger.error("Bad run stats for {}.".format(path))
 
                 self.tasks.update({'dir_name_full': path}, {'$set': {"run_stats": run_stats}})
-                print 'FINISHED', path
+                print('FINISHED', path)
             else:
-                print 'SKIPPING', path
+                print('SKIPPING', path)
         except:
-            print '-----'
-            print 'ENCOUNTERED AN EXCEPTION!!!', path
+            print('-----')
+            print('ENCOUNTERED AN EXCEPTION!!!', path)
             traceback.print_exc()
-            print '-----'
+            print('-----')
 
 
 def _analyze(data):
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     q = {'submission_id': {'$exists': True}}  # these are all old-style tasks
     for d in tasks.find(q, {'dir_name_full': 1}):
         m_data.append(d['dir_name_full'])
-    print 'GOT all tasks...'
+    print('GOT all tasks...')
     pool = multiprocessing.Pool(16)
     pool.map(_analyze, m_data)
-    print 'DONE'
+    print('DONE')

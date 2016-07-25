@@ -34,7 +34,7 @@ for idoc, doc in enumerate(launchpad.fireworks.find(m_query, projection=projecti
                 projection=projection,
                 return_document=ReturnDocument.AFTER
             )
-            print doc['fw_id'], '----> walltime updated'
+            print(doc['fw_id'], '----> walltime updated')
     if 'nnodes' in doc['spec']['_queueadapter'] and not 'nodes' in doc['spec']['_queueadapter']:
         launchpad.fireworks.find_one_and_update(
             {'fw_id': doc['fw_id']}, 
@@ -42,7 +42,7 @@ for idoc, doc in enumerate(launchpad.fireworks.find(m_query, projection=projecti
             projection=projection,
             return_document=ReturnDocument.AFTER
         )
-        print doc['fw_id'], '----> nodes key renamed' 
+        print(doc['fw_id'], '----> nodes key renamed')
     if 'pre_rocket' in doc['spec']['_queueadapter']:
         launchpad.fireworks.find_one_and_update(
             m_query,
@@ -50,12 +50,12 @@ for idoc, doc in enumerate(launchpad.fireworks.find(m_query, projection=projecti
             projection=projection,
             return_document=ReturnDocument.AFTER
         )
-        print doc['fw_id'], '----> pre_rocket dropped' 
+        print(doc['fw_id'], '----> pre_rocket dropped')
     if 'prev_vasp_dir' in doc['spec'] and not os.path.exists(doc['spec']['prev_vasp_dir']):
         block_dir = doc['spec']['prev_vasp_dir'].split('/')[-2:]
         launch_dir = '/'.join('/oasis/projects/nsf/csd436/phuck/garden'.split('/') + block_dir)
         if not os.path.exists(launch_dir):
-            print doc['fw_id'], '---->', '/'.join(block_dir), 'does not exists!'
+            print(doc['fw_id'], '---->', '/'.join(block_dir), 'does not exists!')
 	    continue
     fw_ids.append(doc['fw_id'])
-print 'fixed', fw_ids
+print('fixed', fw_ids)

@@ -66,35 +66,35 @@ def modify_snl(snl_id, new_snl, colls, reject_bad_tasks=False):
     snl_d['snl_timestamp'] = snl_old['snl_timestamp']
 
     # insert the new SNL into the snl collection
-    print 'INSERTING SNL_ID', {'snl_id': snl_id}, snl_d
+    print('INSERTING SNL_ID', {'snl_id': snl_id}, snl_d)
     colls.snl.update({'snl_id': snl_id}, snl_d)
 
     # update the canonical SNL of the group
     for s in colls.snlgroups.find({'canonical_snl.about._materialsproject.snl_id': snl_id}, {'snlgroup_id': 1}):
-        print 'CHANGING SNLGROUP_ID', s['snlgroup_id']
+        print('CHANGING SNLGROUP_ID', s['snlgroup_id'])
         colls.snlgroups.find_and_modify({'snlgroup_id': s['snlgroup_id']}, {'$set': {'canonical_snl': snl_d}})
 
     # update FWs pt 1
     for f in colls.fireworks.find({'spec.mpsnl.about._materialsproject.snl_id': snl_id}, {'fw_id': 1}):
-        print 'CHANGING FW_ID', f['fw_id']
+        print('CHANGING FW_ID', f['fw_id'])
         colls.fireworks.find_and_modify({'fw_id': f['fw_id']}, {'$set': {'spec.mpsnl': snl_d}})
 
     # update FWs pt 2
     for f in colls.fireworks.find({'spec.force_mpsnl.about._materialsproject.snl_id': snl_id}, {'fw_id': 1}):
-        print 'CHANGING FW_ID', f['fw_id']
+        print('CHANGING FW_ID', f['fw_id'])
         colls.fireworks.find_and_modify({'fw_id': f['fw_id']}, {'$set': {'spec.force_mpsnl': snl_d}})
 
     # update Launches
     for l in colls.launches.find({'action.update_spec.mpsnl.about._materialsproject.snl_id': snl_id}, {'launch_id': 1}):
-        print 'CHANGING LAUNCH_ID', l['launch_id']
+        print('CHANGING LAUNCH_ID', l['launch_id'])
         colls.launches.find_and_modify({'launch_id': l['launch_id']}, {'$set': {'action.update_spec.mpsnl': snl_d}})
 
     # update tasks initial
     for t in colls.tasks.find({'snl.about._materialsproject.snl_id': snl_id}, {'task_id': 1}):
-        print 'CHANGING init TASK_ID', t['task_id']
+        print('CHANGING init TASK_ID', t['task_id'])
         colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$set': {'snl': snl_d}})
         if reject_bad_tasks:
-            print 'REJECTING TASK_ID', t['task_id']
+            print('REJECTING TASK_ID', t['task_id'])
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$set': {'state': 'rejected'}})
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$push': {'analysis.errors_MP.critical_signals': 'BAD STRUCTURE SNL'}})
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$inc': {'analysis.errors_MP.num_critical': 1}})
@@ -102,17 +102,17 @@ def modify_snl(snl_id, new_snl, colls, reject_bad_tasks=False):
 
     # update tasks final
     for t in colls.tasks.find({'snl_final.about._materialsproject.snl_id': snl_id}, {'task_id': 1}):
-        print 'CHANGING final TASK_ID', t['task_id']
+        print('CHANGING final TASK_ID', t['task_id'])
         colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$set': {'snl_final': snl_d}})
         if reject_bad_tasks:
-            print 'REJECTING TASK_ID', t['task_id']
+            print('REJECTING TASK_ID', t['task_id'])
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$set': {'state': 'rejected'}})
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$push': {'analysis.errors_MP.critical_signals': 'BAD STRUCTURE SNL'}})
             colls.tasks.find_and_modify({'task_id': t['task_id']}, {'$inc': {'analysis.errors_MP.num_critical': 1}})
 
     # note: for now we are not fixing submissions in order to keep a record of submissions accurate, and also because the SNL assignment comes after submission
 
-    print 'DONE PROCESSING', snl_id
+    print('DONE PROCESSING', snl_id)
 
 
 def get_deprecated_snl(snl_id, colls):
@@ -128,6 +128,6 @@ if __name__ == '__main__':
     snl_id = 1579
 
     snl_new = get_deprecated_snl(snl_id, colls)
-    print snl_new.as_dict()
+    print(snl_new.as_dict())
 
     modify_snl(snl_id, snl_new, colls, reject_bad_tasks=True)

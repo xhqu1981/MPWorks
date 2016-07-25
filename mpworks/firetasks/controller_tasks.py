@@ -33,10 +33,10 @@ class AddEStructureTask(FireTaskBase, FWSerializable):
         self.metal_cutoff = parameters.get('metal_cutoff', 0.05)
 
     def run_task(self, fw_spec):
-        print 'sleeping 10s for Mongo'
+        print('sleeping 10s for Mongo')
         time.sleep(10)
-        print 'done sleeping'
-        print 'the gap is {}, the cutoff is {}'.format(fw_spec['analysis']['bandgap'], self.gap_cutoff)
+        print('done sleeping')
+        print('the gap is {}, the cutoff is {}'.format(fw_spec['analysis']['bandgap'], self.gap_cutoff))
         if fw_spec['analysis']['bandgap'] >= self.gap_cutoff:
             static_dens = 90
             uniform_dens = 1000
@@ -51,7 +51,7 @@ class AddEStructureTask(FireTaskBase, FWSerializable):
         else:
             user_incar_settings = {}
 
-        print 'Adding more runs...'
+        print('Adding more runs...')
 
         type_name = 'GGA+U' if 'GGA+U' in fw_spec['prev_task_type'] else 'GGA'
 
@@ -123,7 +123,7 @@ class AddEStructureTask(FireTaskBase, FWSerializable):
 
         wf = Workflow(fws, connections)
 
-        print 'Done adding more runs...'
+        print('Done adding more runs...')
 
         return FWAction(additions=wf)
 
@@ -145,13 +145,13 @@ class AddEStructureTask_old(FireTaskBase, FWSerializable):
         self.gap_cutoff = parameters.get('gap_cutoff', 0.5)  # see e-mail from Geoffroy, 5/1/2013
 
     def run_task(self, fw_spec):
-        print 'sleeping 10s for Mongo'
+        print('sleeping 10s for Mongo')
         time.sleep(10)
-        print 'done sleeping'
-        print 'the gap is {}, the cutoff is {}'.format(fw_spec['analysis']['bandgap'], self.gap_cutoff)
+        print('done sleeping')
+        print('the gap is {}, the cutoff is {}'.format(fw_spec['analysis']['bandgap'], self.gap_cutoff))
 
         if fw_spec['analysis']['bandgap'] >= self.gap_cutoff:
-            print 'Adding more runs...'
+            print('Adding more runs...')
             type_name = 'GGA+U' if 'GGA+U' in fw_spec['prev_task_type'] else 'GGA'
 
             snl = fw_spec['mpsnl']
@@ -211,7 +211,7 @@ class AddEStructureTask_old(FireTaskBase, FWSerializable):
 
             wf = Workflow(fws, connections)
 
-            print 'Done adding more runs...'
+            print('Done adding more runs...')
 
             return FWAction(additions=wf)
         return FWAction()

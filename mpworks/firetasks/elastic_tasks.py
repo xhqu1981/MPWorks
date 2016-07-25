@@ -148,9 +148,9 @@ class AddElasticDataToDBTask(FireTaskBase, FWSerializable):
                             "state":"successful"}).count()
         existing_doc = elasticity.find_one({"relaxation_task_id" : i})
         if existing_doc:
-            print "Updating: " + i
+            print("Updating: " + i)
         else:
-            print "New material: " + i
+            print("New material: " + i)
         d = {"analysis": {}, "error": [], "warning": []}
         d["ndocs"] = ndocs
         o = tasks.find_one({"task_id" : i},
@@ -178,8 +178,8 @@ class AddElasticDataToDBTask(FireTaskBase, FWSerializable):
                                   "{:.0e}".format(delta)])
             sm = IndependentStrain(defo)
             if dtype in d["deformation_tasks"].keys():
-                print "old_task: {}".format(d["deformation_tasks"][dtype]["task_id"])
-                print "new_task: {}".format(k["task_id"])
+                print("old_task: {}".format(d["deformation_tasks"][dtype]["task_id"]))
+                print("new_task: {}".format(k["task_id"]))
                 raise ValueError("Duplicate deformation task in database.")
             d["deformation_tasks"][dtype] = {"state" : k["state"],
                                              "deformation_matrix" : defo,

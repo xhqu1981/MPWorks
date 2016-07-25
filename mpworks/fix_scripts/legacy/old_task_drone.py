@@ -193,7 +193,7 @@ class MPVaspDrone_CONVERSION(VaspToDbTaskDrone):
         vasp_signals['last_relax_dir'] = last_relax_dir
         ## see what error signals are present
 
-        print "getting signals for dir :{}".format(last_relax_dir)
+        print("getting signals for dir :{}".format(last_relax_dir))
 
         sl = SignalDetectorList()
         sl.append(VASPInputsExistSignal())

@@ -171,12 +171,12 @@ class SNLGroup():
         chemsys = '-'.join(elsyms)
         if (
                 cand_snl.structure.num_sites > 1500 or self.canonical_structure.num_sites > 1500) and chemsys == 'C-Ce':
-            print 'SKIPPING LARGE C-Ce'
+            print('SKIPPING LARGE C-Ce')
             return False, None
 
         # make sure the structure is not already in all_structures
         if cand_snl.snl_id in self.all_snl_ids:
-            print 'WARNING: add_if_belongs() has detected that you are trying to add the same SNL id twice!'
+            print('WARNING: add_if_belongs() has detected that you are trying to add the same SNL id twice!')
             return False, None
 
         #try a structure fit to the canonical structure

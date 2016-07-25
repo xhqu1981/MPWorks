@@ -89,7 +89,7 @@ class VaspToDBTaskEx(FireTaskBase, FWSerializable):
             t_id = drone.assimilate(prev_dir)
 
         if t_id:
-            print 'ENTERED task id:', t_id
+            print('ENTERED task id:', t_id)
             stored_data = {'task_id': t_id}
             update_spec = {'prev_vasp_dir': prev_dir, 'prev_task_type': fw_spec['prev_task_type']}
             return FWAction(stored_data=stored_data, update_spec=update_spec)

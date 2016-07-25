@@ -51,12 +51,12 @@ class TaskBuilder():
         try:
             task_id_deprecated = int(task_id.split('-')[-1])
             self.tasks.update({"task_id": task_id}, {"$set": {"task_id_deprecated": task_id_deprecated}})
-            print 'FINISHED', task_id
+            print('FINISHED', task_id)
         except:
-            print '-----'
-            print 'ENCOUNTERED AN EXCEPTION!!!', task_id
+            print('-----')
+            print('ENCOUNTERED AN EXCEPTION!!!', task_id)
             traceback.print_exc()
-            print '-----'
+            print('-----')
 
 
 def _analyze(data):
@@ -80,4 +80,4 @@ if __name__ == '__main__':
     q = {}
     for d in tasks.find(q, {'task_id': 1}, timeout=False):
         o.process_task(d['task_id'])
-    print 'DONE'
+    print('DONE')

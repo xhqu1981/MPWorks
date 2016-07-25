@@ -62,13 +62,13 @@ class ICSDBuilder():
             icsd_ids = self.get_icsd_ids_from_snlgroup(snlgroup_id)
 
             self.materials.find_and_modify({"task_ids": material_id}, {"$set": {"icsd_id": icsd_ids}})
-            print material_id, icsd_ids
-            print 'FINISHED', material_id
+            print(material_id, icsd_ids)
+            print('FINISHED', material_id)
         except:
-            print '-----'
-            print 'ENCOUNTERED AN EXCEPTION!!!', material_id
+            print('-----')
+            print('ENCOUNTERED AN EXCEPTION!!!', material_id)
             traceback.print_exc()
-            print '-----'
+            print('-----')
 
 
     def get_icsd_ids_from_snlgroup(self, snlgroup_id):
@@ -93,11 +93,11 @@ if __name__ == '__main__':
     o = ICSDBuilder()
     o.setup()
     materials = o.materials
-    print materials.count()
+    print(materials.count())
     m_data = []
     for d in materials.find({}, {'task_id': 1}, timeout=False):
         m_data.append(d['task_id'])
 
     pool = multiprocessing.Pool(8)
     pool.map(_analyze, m_data)
-    print 'DONE'
+    print('DONE')

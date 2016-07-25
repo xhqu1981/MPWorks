@@ -19,7 +19,7 @@ def mps_dict_to_snl(mps_dict):
         return None
 
     if 'Carbon Capture Storage Initiative (CCSI)' in m['about']['metadata']['project_names']:
-        print 'rejected old CCSI'
+        print('rejected old CCSI')
         return None
 
     mps_ids = [m['mps_id']]

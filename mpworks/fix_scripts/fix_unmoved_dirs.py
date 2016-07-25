@@ -26,7 +26,7 @@ def detect():
         block_part = get_block_part(d)
         garden_dir = os.path.join(GARDEN_PATH, block_part)
         if os.path.exists(garden_dir):
-            print garden_dir
+            print(garden_dir)
 
 
 if __name__ == '__main__':

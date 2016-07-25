@@ -34,8 +34,8 @@ def _get_mp_link(mp_id):
 fig = py.get_figure('tschaume',11)
 df = DataFrame.from_dict(fig['data'][1]).filter(['x','y','text'])
 grouped_x = df.groupby('x')
-print '|==============================='
-print '| old SG | close to bisectrix | far from bisectrix'
+print('|===============================')
+print('| old SG | close to bisectrix | far from bisectrix')
 for n,g in grouped_x:
     if g.shape[0] < 2: continue # at least two entries at same old SG
     grouped_y = g.groupby('y')
@@ -50,9 +50,9 @@ for n,g in grouped_x:
     if ratios[0] > 0.2 or ratios[1] < 0.8: continue
     snlgroup_ids = _get_snlgroup_id(first['text']), _get_snlgroup_id(last['text'])
     mp_ids = _get_mp_id(snlgroup_ids[0]), _get_mp_id(snlgroup_ids[1])
-    print '| %d | %d (%d) -> %d -> %s | %d (%d) -> %d -> %s' % (
+    print('| %d | %d (%d) -> %d -> %s | %d (%d) -> %d -> %s' % (
         first['x'],
         first['text'], first['y'], snlgroup_ids[0], _get_mp_link(mp_ids[0]),
         last['text'], last['y'], snlgroup_ids[1], _get_mp_link(mp_ids[1])
-    )
-print '|==============================='
+    ))
+print('|===============================')

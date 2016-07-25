@@ -36,7 +36,7 @@ if __name__ == '__main__':
 
     prev_ids = []  # MPS ids that we already took care of
 
-    print 'INITIALIZING'
+    print('INITIALIZING')
     if RESET:
         snldb._reset()
         time.sleep(10)  # makes me sleep better at night
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         for mps in snldb.snl.find({}, {"about._materialsproject.deprecated.mps_ids": 1}):
             prev_ids.extend(mps['about']['_materialsproject']['deprecated']['mps_ids'])
 
-    print 'PROCESSING'
+    print('PROCESSING')
     for mps in db.mps.find(timeout=False):
         try:
             if not mps['mps_id'] in prev_ids:
@@ -53,9 +53,9 @@ if __name__ == '__main__':
                 if snl:
                     snldb.add_snl(snl)
             else:
-                print 'SKIPPING', mps['mps_id']
+                print('SKIPPING', mps['mps_id'])
         except:
             traceback.print_exc()
-            print 'ERROR - mps id:', mps['mps_id']
+            print('ERROR - mps id:', mps['mps_id'])
 
-    print 'DONE'
+    print('DONE')

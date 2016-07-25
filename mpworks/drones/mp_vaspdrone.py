@@ -66,9 +66,9 @@ class MPVaspDrone(VaspToDbTaskDrone):
             d["dir_name"] = get_block_part(d["dir_name_full"])
             d["stored_data"] = {}
         except:
-            print 'COULD NOT GET DIR NAME'
+            print('COULD NOT GET DIR NAME')
             pprint.pprint(d)
-            print traceback.format_exc()
+            print(traceback.format_exc())
             raise ValueError('IMPROPER PARSING OF {}'.format(path))
 
         if not self.simulate:
@@ -166,7 +166,7 @@ class MPVaspDrone(VaspToDbTaskDrone):
                     d['is_compatible'] = bool(mpc.process_entry(entry))
                 except:
                     traceback.print_exc()
-                    print 'ERROR in getting compatibility'
+                    print('ERROR in getting compatibility')
                     d['is_compatible'] = None
 
 
@@ -311,7 +311,7 @@ class MPVaspDrone(VaspToDbTaskDrone):
         vasp_signals['last_relax_dir'] = last_relax_dir
         ## see what error signals are present
 
-        print "getting signals for dir :{}".format(last_relax_dir)
+        print("getting signals for dir :{}".format(last_relax_dir))
 
         sl = SignalDetectorList()
         sl.append(VASPInputsExistSignal())

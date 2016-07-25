@@ -40,7 +40,7 @@ def detect():
             n_groups = snlgroups.find({"all_snl_ids":{"$in":[old_s['snl_id'], new_s['snl_id']]}}).count()
             if n_groups != 1:
                 # The crystal_id is bad
-                print crystal_id
+                print(crystal_id)
 
 
 def fix():
@@ -90,7 +90,7 @@ def fix():
 
     for c_id in bad_crystal_ids:
         if c_id == 100892 or c_id == 100202:
-            print 'SKIP'
+            print('SKIP')
 
         else:
             # FIX SNL
@@ -122,7 +122,7 @@ def fix():
             for s in submissions.find({'about._materialsproject.deprecated.crystal_id_deprecated': c_id}, {'submission_id': 1}):
                 submissions.update({'submission_id': s['submission_id']}, {'$pushAll': {"about.remarks": ['DEPRECATED', 'SEVERE BUG IN ICSD CONVERSION']}})
 
-            print 'FIXED', c_id
+            print('FIXED', c_id)
 
 
 def find_alternate_canonical():
@@ -139,10 +139,10 @@ def find_alternate_canonical():
         for s in snl.find({"snl_id": {"$in": g['all_snl_ids']}, "about.remarks": {"$ne": "DEPRECATED"}}):
             canonical_mpsnl = MPStructureNL.from_dict(s)
             snldb.switch_canonical_snl(g['snlgroup_id'], canonical_mpsnl)
-            print g['snlgroup_id']
+            print(g['snlgroup_id'])
             break
 
-    print 'DONE'
+    print('DONE')
 
 def archive_deprecated_fws():
     # find all snlgroups that are deprecated, and archive all WFs that have deprecated fw_ids so we don't run them
@@ -157,11 +157,11 @@ def archive_deprecated_fws():
     for g in snlgroups.find({'canonical_snl.about.remarks':'DEPRECATED'}, {'snlgroup_id': 1}):
         while lpdb.fireworks.find_one({'spec.snlgroup_id': g['snlgroup_id'], 'state': {'$ne': 'ARCHIVED'}}, {'fw_id': 1}):
             fw = lpdb.fireworks.find_one({'spec.snlgroup_id': g['snlgroup_id'], 'state': {'$ne': 'ARCHIVED'}}, {'fw_id': 1})
-            print fw['fw_id']
+            print(fw['fw_id'])
             lpdb.archive_wf(fw['fw_id'])
 
 
-    print 'DONE'
+    print('DONE')
 
 
 

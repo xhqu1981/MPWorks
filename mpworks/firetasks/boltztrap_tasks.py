@@ -162,13 +162,13 @@ class BoltztrapRunTask(FireTaskBase, FWSerializable):
 
             nelect = m_task['calculations'][0]['input']['parameters']['NELECT']
             bs_id = m_task['calculations'][0]['band_structure_fs_id']
-            print bs_id, type(bs_id)
+            print(bs_id, type(bs_id))
             fs = gridfs.GridFS(tdb, 'band_structure_fs')
             bs_dict = json.loads(fs.get(bs_id).read())
             bs_dict['structure'] = m_task['calculations'][0]['output']['crystal']
             bs = BandStructure.from_dict(bs_dict)
-            print 'Band Structure found:', bool(bs)
-            print nelect
+            print('Band Structure found:', bool(bs))
+            print(nelect)
 
             # run Boltztrap
             runner = BoltztrapRunner(bs, nelect)
@@ -254,7 +254,7 @@ class BoltztrapRunTask(FireTaskBase, FWSerializable):
             except:
                 import traceback
                 traceback.print_exc()
-                print 'COULD NOT GET FINE MESH DATA'
+                print('COULD NOT GET FINE MESH DATA')
 
             # add is_compatible
             mpc = MaterialsProjectCompatibility("Advanced")
@@ -273,7 +273,7 @@ class BoltztrapRunTask(FireTaskBase, FWSerializable):
                 ted["is_compatible"] = bool(mpc.process_entry(entry))
             except:
                 traceback.print_exc()
-                print 'ERROR in getting compatibility, task_id: {}'.format(m_task["task_id"])
+                print('ERROR in getting compatibility, task_id: {}'.format(m_task["task_id"]))
                 ted["is_compatible"] = None
 
             tdb.boltztrap.insert(jsanitize(ted))

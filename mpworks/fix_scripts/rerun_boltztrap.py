@@ -62,7 +62,7 @@ for fw_doc in lpdb.fireworks.find(
                 last_line = ferr.readlines()[-1].strip()
                 if 'TIME LIMIT' in last_line:
                     lpdb.rerun_fw(fw_doc['fw_id'])
-                    print '[{}] rerun due to TIME LIMIT'.format(fw_doc['fw_id'])
+                    print('[{}] rerun due to TIME LIMIT'.format(fw_doc['fw_id']))
                 else:
                     counter['RECENT_BTZ_FWS_' + fw_doc['state']] += 1
         else:
@@ -71,7 +71,7 @@ for fw_doc in lpdb.fireworks.find(
              #parent_fw = lpdb.fireworks.find_one({'fw_id': parent_fw_id}, {'state':1})
              #if parent_fw['state'] == 'COMPLETED':
              counter['RECENT_BTZ_FWS_' + fw_doc['state']] += 1
-print counter
+print(counter)
 
 nfws = 0
 for fw_doc in lpdb.fireworks.find(
@@ -85,8 +85,8 @@ for fw_doc in lpdb.fireworks.find(
     if 'parent job unsuccessful' in last_line or 'Could not find task' in last_line:
         parent_fw_id = wf['parent_links'][str(fw_doc['fw_id'])][-1]
         lpdb.rerun_fw(parent_fw_id)
-        print '[{}] {} --> marked parent {} for rerun'.format(nfws, fw_doc['fw_id'], parent_fw_id)
+        print('[{}] {} --> marked parent {} for rerun'.format(nfws, fw_doc['fw_id'], parent_fw_id))
     else:
         #lpdb.rerun_fw(fw_doc['fw_id'])
-        print '[{}] {} --> {}'.format(nfws, fw_doc['fw_id'], last_line)
+        print('[{}] {} --> {}'.format(nfws, fw_doc['fw_id'], last_line))
     nfws += 1

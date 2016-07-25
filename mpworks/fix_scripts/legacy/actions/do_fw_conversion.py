@@ -28,7 +28,7 @@ if __name__ == '__main__':
         db2.authenticate(db_creds['admin_user'], db_creds['admin_password'])
         new_tasks = db2['tasks']
 
-    print new_tasks.count()
+    print(new_tasks.count())
 
     new_tasks.ensure_index("task_id", unique=True)
     new_tasks.ensure_index("task_id_deprecated", unique=True)

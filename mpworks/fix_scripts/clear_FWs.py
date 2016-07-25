@@ -45,15 +45,15 @@ if __name__ == '__main__':
     # archive READY WORKFLOWS
     for d in lp.workflows.find({"state": "READY"}, {'nodes': 1}):
         fw_ids.append(d['nodes'][0])
-    print 'GOT all fw_ids...'
+    print('GOT all fw_ids...')
     pool = multiprocessing.Pool(8)
     states = pool.map(_archive_fw, fw_ids)
-    print 'DONE', all(states)
+    print('DONE', all(states))
 
     # defuse any READY/WAITING FWs
     for d in lp.fireworks.find({"state": {"$in":["READY", "WAITING"]}}, {'fw_id': 1}):
         fw_ids.append(d['fw_id'])
-    print 'GOT all fw_ids...'
+    print('GOT all fw_ids...')
     pool = multiprocessing.Pool(8)
     states = pool.map(_defuse_fw, fw_ids)
-    print 'DONE', all(states)
+    print('DONE', all(states))

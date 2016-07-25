@@ -69,7 +69,7 @@ if __name__ == '__main__':
             except_str = l['action']['stored_data'].get('_exception')
             if 'Disk quota exceeded' in except_str:
                  except_dict['DISK_QUOTA_EXCEEDED'] = except_dict['DISK_QUOTA_EXCEEDED']+1
-                 print l['fw_id'], '*'
+                 print(l['fw_id'], '*')
                  lpdb.rerun_fw(l['fw_id'])
             elif 'No such file' in except_str:
                 # this is due to missing CHGCAR from Michael's old runs
@@ -110,7 +110,7 @@ if __name__ == '__main__':
             else:
                 except_dict[except_str] = except_dict[except_str]+1
 
-    print '-----'
+    print('-----')
     for k, v in except_dict.iteritems():
-        print {"{}\t{}".format(v, k)}
+        print({"{}\t{}".format(v, k)})
 

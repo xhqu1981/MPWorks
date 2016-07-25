@@ -54,9 +54,9 @@ class OldTaskBuilder():
         t = self.old_tasks.find_one({'task_id': task_id})
         try:
             t_id, d = self.drone.assimilate(t)
-            print 'ENTERED', t_id
+            print('ENTERED', t_id)
         except:
-            print 'ERROR entering', t['task_id']
+            print('ERROR entering', t['task_id'])
             traceback.print_exc()
 
 
@@ -83,5 +83,5 @@ if __name__ == '__main__':
             t = o.new_tasks.find_one({"task_id": new_task_id}, {"state": 1})
             if t:
                 o.new_tasks.remove({'task_id': new_task_id})
-                print 'REPARSING', old_task_id
+                print('REPARSING', old_task_id)
                 o.process_task(old_task_id)

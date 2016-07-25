@@ -154,10 +154,10 @@ class WriteUCVaspInputs(FireTaskBase):
             dec.process_decoded(self.get("potcar_fuctional", 'PBE'))
 
         # Will continue an incomplete job from a previous contcar file if it exists
-        print 'cwd is %s' %(os.getcwd())
-        print 'the folder is %s' %(folder)
-        print os.path.join(os.getcwd(), folder)
-        print cwd+'/'+folder
+        print('cwd is %s' %(os.getcwd()))
+        print('the folder is %s' %(folder))
+        print(os.path.join(os.getcwd(), folder))
+        print(cwd+'/'+folder)
         path = cwd+'/'+folder
 
         # path = os.path.join(os.getcwd(), folder)
@@ -170,17 +170,17 @@ class WriteUCVaspInputs(FireTaskBase):
         # print os.stat(os.path.join(path, 'CONTCAR.gz')).st_size !=0
 
         def continue_vasp(contcar):
-            print folder, 'already exists, will now continue calculation'
-            print 'making prev_run folder'
+            print(folder, 'already exists, will now continue calculation')
+            print('making prev_run folder')
             os.system('mkdir %s' %(newfolder))
-            print 'moving outputs to prev_run'
+            print('moving outputs to prev_run')
             os.system('mv %s/* %s/prev_run' %(path, path))
-            print 'moving outputs as inputs for next calculation'
+            print('moving outputs as inputs for next calculation')
             os.system('cp %s/%s %s/INCAR %s/POTCAR %s/KPOINTS %s'
                       %(newfolder, contcar, newfolder, newfolder, newfolder, path))
-            print 'unzipping new inputs'
+            print('unzipping new inputs')
             os.system('gunzip %s/*' %(path))
-            print 'copying contcar as new poscar'
+            print('copying contcar as new poscar')
             if contcar == 'CONTCAR.relax1.gz':
                 os.system('mv %s/CONTCAR.relax1 %s/POSCAR' %(path , path))
             else:
@@ -273,7 +273,7 @@ class WriteSlabVaspInputs(FireTaskBase):
         min_vacuum_size = dec.process_decoded(self.get("min_vacuum_size", 10))
         miller_index = dec.process_decoded(self.get("miller_index"))
 
-        print 'about to make mplb'
+        print('about to make mplb')
 
         mplb = MPSlabVaspInputSet(user_incar_settings=user_incar_settings,
                                   k_product=k_product,
@@ -284,12 +284,12 @@ class WriteSlabVaspInputs(FireTaskBase):
         # cell is already oriented with the miller index, entering (0,0,1)
         # into SlabGenerator is the same as obtaining a slab in the
         # orienetation of the original miller index.
-        print 'about to copy contcar'
+        print('about to copy contcar')
         contcar = Poscar.from_file("%s/CONTCAR.relax2.gz" %(cwd+folder))
         relax_orient_uc = contcar.structure
-        print 'made relaxed oriented structure'
-        print relax_orient_uc
-        print 'making slab'
+        print('made relaxed oriented structure')
+        print(relax_orient_uc)
+        print('making slab')
 
         slabs = SlabGenerator(relax_orient_uc, (0,0,1),
                               min_slab_size=min_slab_size,
@@ -298,43 +298,43 @@ class WriteSlabVaspInputs(FireTaskBase):
 
         # Whether or not to create a list of Fireworks
         # based on different slab terminations
-        print 'deciding terminations'
+        print('deciding terminations')
         slab_list = slabs.get_slabs() if terminations else [slabs.get_slab()]
 
         qe = QueryEngine(**vaspdbinsert_parameters)
         optional_data = ["state"]
-        print 'query bulk entry for job completion'
+        print('query bulk entry for job completion')
         bulk_entry =  qe.get_entries({'chemsys': relax_orient_uc.composition.reduced_formula,
                                      'structure_type': 'oriented_unit_cell', 'miller_index': miller_index},
                                      optional_data=optional_data)
-        print 'chemical formula', relax_orient_uc.composition.reduced_formula
-        print 'fomular data type is ', type(relax_orient_uc.composition.reduced_formula)
-        print 'checking job completion'
-        print bulk_entry
+        print('chemical formula', relax_orient_uc.composition.reduced_formula)
+        print('fomular data type is ', type(relax_orient_uc.composition.reduced_formula))
+        print('checking job completion')
+        print(bulk_entry)
         for entry in bulk_entry:
-            print 'for loop'
-            print entry.data['state']
+            print('for loop')
+            print(entry.data['state'])
             if entry.data['state'] != 'successful':
-                print "%s bulk calculations were incomplete, cancelling FW" \
-                      %(relax_orient_uc.composition.reduced_formula)
+                print("%s bulk calculations were incomplete, cancelling FW" \
+                      %(relax_orient_uc.composition.reduced_formula))
                 return FWAction()
             else:
 
-                print entry.data['state']
+                print(entry.data['state'])
 
                 FWs = []
                 for slab in slab_list:
 
-                    print slab
+                    print(slab)
 
                     new_folder = folder.replace('bulk', 'slab')+'_shift%s' \
                                                                 %(slab.shift)
 
                     # Will continue an incomplete job from a previous contcar file if it exists
-                    print 'cwd is %s' %(os.getcwd())
-                    print 'the folder is %s' %(new_folder)
-                    print os.path.join(os.getcwd(), new_folder)
-                    print cwd+'/'+new_folder
+                    print('cwd is %s' %(os.getcwd()))
+                    print('the folder is %s' %(new_folder))
+                    print(os.path.join(os.getcwd(), new_folder))
+                    print(cwd+'/'+new_folder)
                     path = cwd+'/'+new_folder
 
                     # path = os.path.join(os.getcwd(), folder)
@@ -347,17 +347,17 @@ class WriteSlabVaspInputs(FireTaskBase):
                     # print os.stat(os.path.join(path, 'CONTCAR.gz')).st_size !=0
 
                     def continue_vasp(contcar):
-                        print folder, 'already exists, will now continue calculation'
-                        print 'making prev_run folder'
+                        print(folder, 'already exists, will now continue calculation')
+                        print('making prev_run folder')
                         os.system('mkdir %s' %(newfolder))
-                        print 'moving outputs to prev_run'
+                        print('moving outputs to prev_run')
                         os.system('mv %s/* %s/prev_run' %(path, path))
-                        print 'moving outputs as inputs for next calculation'
+                        print('moving outputs as inputs for next calculation')
                         os.system('cp %s/%s %s/INCAR %s/POTCAR %s/KPOINTS %s'
                                   %(newfolder, contcar, newfolder, newfolder, newfolder, path))
-                        print 'unzipping new inputs'
+                        print('unzipping new inputs')
                         os.system('gunzip %s/*' %(path))
-                        print 'copying contcar as new poscar'
+                        print('copying contcar as new poscar')
                         if contcar == 'CONTCAR.relax1.gz':
                             os.system('mv %s/CONTCAR.relax1 %s/POSCAR' %(path , path))
                         else:

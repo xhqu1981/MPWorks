@@ -40,6 +40,6 @@ if __name__ == '__main__':
                 snldb.add_snl(snl)
         except:
             traceback.print_exc()
-            print 'ERROR - icsd id:', icsd_dict['icsd_id']
+            print('ERROR - icsd id:', icsd_dict['icsd_id'])
 
-    print 'DONE'
+    print('DONE')

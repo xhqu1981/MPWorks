@@ -63,12 +63,12 @@ class TaskBuilder():
 
 
             self.tasks.update({"task_id": t_id}, {"$set": {"snl_final": prev_info['snl_final'], "snlgroup_id_final": prev_info['snlgroup_id_final'], "snlgroup_changed": prev_info['snlgroup_changed']}})
-            print 'FINISHED', t_id
+            print('FINISHED', t_id)
         except:
-            print '-----'
-            print 'ENCOUNTERED AN EXCEPTION!!!', data[0]
+            print('-----')
+            print('ENCOUNTERED AN EXCEPTION!!!', data[0])
             traceback.print_exc()
-            print '-----'
+            print('-----')
 
 
 def _analyze(data):
@@ -108,8 +108,8 @@ if __name__ == '__main__':
 
     for d in tasks.find(q, {'dir_name_full': 1, 'task_type': 1, 'task_id': 1}, timeout=False):
         if d['task_id'] in finished_tasks:
-            print 'DUPLICATE', d['task_id']
+            print('DUPLICATE', d['task_id'])
         else:
             o.process_task((d['dir_name_full'], 'Uniform' in d['task_type']))
             # m_data.append((d['dir_name_full'], 'Uniform' in d['task_type']))
-    print 'DONE'
+    print('DONE')

@@ -57,6 +57,6 @@ def task_dict_to_wf(task_dict, launchpad):
     launchpad.add_wf(wf, reassign_all=False)
     launchpad._upsert_launch(launches[0])
 
-    print 'ADDED', fw_id
+    print('ADDED', fw_id)
     # return fw_id
     return fw_id

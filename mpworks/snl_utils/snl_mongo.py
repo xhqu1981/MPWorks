@@ -122,7 +122,7 @@ class SNLMongoAdapter(FWSerializable):
     def _add_if_belongs(self, snlgroup, mpsnl, testing_mode):
         match_found, spec_group = snlgroup.add_if_belongs(mpsnl)
         if match_found:
-            print 'MATCH FOUND, grouping (snl_id, snlgroup): {}'.format((mpsnl.snl_id, snlgroup.snlgroup_id))
+            print('MATCH FOUND, grouping (snl_id, snlgroup): {}'.format((mpsnl.snl_id, snlgroup.snlgroup_id)))
             if not testing_mode:
                 self.snlgroups.update({'snlgroup_id': snlgroup.snlgroup_id}, snlgroup.as_dict())
 

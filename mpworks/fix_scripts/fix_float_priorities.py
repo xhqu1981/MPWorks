@@ -17,7 +17,7 @@ if __name__ == '__main__':
 
 
     for fw in lpdb.fireworks.find({"spec._tasks.1.max_errors":{"$type": 1}}, {"fw_id": 1, "state": 1, "spec._tasks": 1}, timeout=False):
-        print fw['fw_id'], fw['state']
+        print(fw['fw_id'], fw['state'])
         lpdb.fireworks.find_and_modify({"fw_id": fw['fw_id']}, {"$set": {"spec._tasks.1.max_errors": int(5)}})
         if fw['state'] == 'FIZZLED':
             lpdb.rerun_fw(fw['fw_id'])

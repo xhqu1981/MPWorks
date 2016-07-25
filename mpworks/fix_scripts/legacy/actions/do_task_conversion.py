@@ -58,12 +58,12 @@ class OldTaskBuilder():
             t = self.old_tasks.find_one({'task_id': task_id})
             try:
                 t_id, d = self.drone.assimilate(t)
-                print 'ENTERED', t_id
+                print('ENTERED', t_id)
             except:
-                print 'ERROR entering', t['task_id']
+                print('ERROR entering', t['task_id'])
                 traceback.print_exc()
         else:
-            print 'skip'
+            print('skip')
 
 
 def _analyze(task_id):
@@ -77,10 +77,10 @@ def parallel_build(min, max):
     for i in tasks_old.find({'task_id': {'$gte': min, '$lt': max}}, {'task_id': 1}):
         task_ids.append(i['task_id'])
 
-    print 'GOT all tasks...'
+    print('GOT all tasks...')
     pool = multiprocessing.Pool(16)
     pool.map(_analyze, task_ids)
-    print 'DONE'
+    print('DONE')
 
 if __name__ == '__main__':
     o = OldTaskBuilder()

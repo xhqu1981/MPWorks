@@ -22,26 +22,26 @@ if __name__ == '__main__':
     all_snl_ids = []  # snl ids that have a group
     all_missing_ids = []  # snl ids missing a group
     idx = 0
-    print 'GETTING GROUPS'
+    print('GETTING GROUPS')
     for x in snldb.snlgroups.find({}, {"all_snl_ids": 1}):
         all_snl_ids.extend(x['all_snl_ids'])
 
-    print 'CHECKING SNL'
+    print('CHECKING SNL')
     for x in snldb.snl.find({}, {'snl_id': 1}, timeout=False):
-        print x['snl_id']
+        print(x['snl_id'])
         if x['snl_id'] not in all_snl_ids:
-            print x['snl_id'], '*********'
+            print(x['snl_id'], '*********')
             all_missing_ids.append(x['snl_id'])
 
-    print 'FIXING / ADDING GROUPS'
-    print all_missing_ids
+    print('FIXING / ADDING GROUPS')
+    print(all_missing_ids)
 
     for snl_id in all_missing_ids:
         try:
             mpsnl = MPStructureNL.from_dict(snldb.snl.find_one({"snl_id": snl_id}))
             snldb.build_groups(mpsnl)
-            print 'SUCCESSFUL', snl_id
+            print('SUCCESSFUL', snl_id)
         except:
-            print 'ERROR with snl_id', snl_id
+            print('ERROR with snl_id', snl_id)
             traceback.print_exc()
 

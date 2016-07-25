@@ -103,9 +103,9 @@ class SurfaceWorkflowManager(object):
             spa = SpacegroupAnalyzer(prim_unit_cell, symprec=symprec,
                                      angle_tolerance=angle_tolerance)
             conv_unit_cell = spa.get_conventional_standard_structure()
-            print conv_unit_cell
+            print(conv_unit_cell)
             unit_cells_dict[el] = [conv_unit_cell, min(e_per_atom)]
-            print el
+            print(el)
 
 
         self.api_key = api_key
@@ -146,9 +146,9 @@ class SurfaceWorkflowManager(object):
                 get_symmetrically_distinct_miller_indices(self.unit_cells_dict[el][0],
                                                           max_index)
 
-            print 'surface ', el
+            print('surface ', el)
 
-            print '# ', el
+            print('# ', el)
 
             if max_only:
                 for hkl in list_of_indices:
@@ -310,17 +310,17 @@ class CreateSurfaceWorkflow(object):
         for key in self.miller_dict.keys():
             # Enumerate through all compounds in the dictionary,
             # the key is the compositional formula of the compound
-            print key
+            print(key)
             for miller_index in self.miller_dict[key]:
                 # Enumerates through all miller indices we
                 # want to create slabs of that compound from
 
-                print str(miller_index)
+                print(str(miller_index))
 
                 max_norm = max(miller_index) if self.max_normal_search else None
                 # Whether or not we want to use the
                 # max_normal_search algorithm from surface.py
-                print 'true or false max norm is ', max_norm, self.max_normal_search
+                print('true or false max norm is ', max_norm, self.max_normal_search)
 
                 slab = SlabGenerator(self.unit_cells_dict[key][0], miller_index,
                                      self.ssize, self.vsize, max_normal_search=max_norm)
