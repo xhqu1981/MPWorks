@@ -142,7 +142,7 @@ class SNLGroup():
         d['all_snl_ids'] = self.all_snl_ids
         d['num_snl'] = len(self.all_snl_ids)
         d['species_snl'] = [s.as_dict() for s in self.species_snl]
-        d['species_groups'] = dict([(str(k), v) for k, v in self.species_groups.iteritems()])
+        d['species_groups'] = dict([(str(k), v) for k, v in self.species_groups.items()])
         d['snlgroup_key'] = self.canonical_snl.snlgroup_key
         return d
 
@@ -150,7 +150,7 @@ class SNLGroup():
     def from_dict(cls, d):
         sp_snl = [MPStructureNL.from_dict(s) for s in d['species_snl']] if 'species_snl' in d else None
         # to account for no int keys in Mongo dicts
-        species_groups = dict([(int(k), v) for k, v in d['species_groups'].iteritems()]) if 'species_groups' in d else None
+        species_groups = dict([(int(k), v) for k, v in d['species_groups'].items()]) if 'species_groups' in d else None
 
         return SNLGroup(d['snlgroup_id'], MPStructureNL.from_dict(d['canonical_snl']),
                         d['all_snl_ids'], sp_snl, species_groups)

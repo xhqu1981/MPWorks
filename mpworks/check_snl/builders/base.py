@@ -95,7 +95,7 @@ class SNLGroupBaseChecker(Builder):
           exc_type, exc_value, exc_traceback = sys.exc_info()
           _log.info('%r %r', exc_type, exc_value)
 	  _log.info('_push_to_plotly ERROR: bar=%r', bar_x)
-        for k,v in md.iteritems():
+        for k,v in md.items():
             if len(v) < 1: continue
             try:
                 self._streams[2].write(Scatter(
@@ -122,7 +122,7 @@ class SNLGroupBaseChecker(Builder):
         for k in categories[self.checker_name]:
             mc[categories[self.checker_name].index(k)] += len(mismatch_dict[k])
         self._mismatch_counter = mc
-        for k,v in mismatch_dict.iteritems():
+        for k,v in mismatch_dict.items():
             self._mismatch_dict[k] += v
         currow = self._counter[nrow]
         currow[ncol] += 1

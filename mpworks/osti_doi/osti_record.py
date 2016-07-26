@@ -93,10 +93,10 @@ class OstiMongoAdapter(object):
         dois_insert = [
             {'_id': mpid, 'doi': d['doi'], 'valid': False,
              'created_at': datetime.datetime.now().isoformat()}
-            for mpid,d in dois.iteritems() if not d['updated']
+            for mpid,d in dois.items() if not d['updated']
         ]
         if dois_insert: logger.info(self.doicoll.insert(dois_insert))
-        dois_update = [ mpid for mpid,d in dois.iteritems() if d['updated'] ]
+        dois_update = [ mpid for mpid,d in dois.items() if d['updated'] ]
         if dois_update:
             logger.info(self.doicoll.update(
                 {'_id': {'$in': dois_update}},

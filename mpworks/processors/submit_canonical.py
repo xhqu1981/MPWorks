@@ -64,7 +64,7 @@ def submit_tests(names=None, params=None):
 
     mpr = MPRester()
 
-    for name, sid in compounds.iteritems():
+    for name, sid in compounds.items():
         if not names or name in names:
             sid = mpr.get_materials_id_from_task_id("mp-{}".format(sid))
             s = mpr.get_structure_by_material_id(sid, final=False)

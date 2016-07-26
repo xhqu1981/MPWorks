@@ -216,7 +216,7 @@ if __name__ == "__main__":
                             continue
                         is_new = bool(datetime(2016, 1, 1) < workflow['updated_on'])
                         if workflow['state'] == 'FIZZLED':
-                            for fw_id_fizzled, fw_state in workflow['fw_states'].iteritems():
+                            for fw_id_fizzled, fw_state in workflow['fw_states'].items():
                                 if fw_state == 'FIZZLED':
                                     fw_fizzled = lpdb.fireworks.find_one({'fw_id': int(fw_id_fizzled)}, {'_id': 0, 'name': 1, 'fw_id': 1, 'spec.task_type': 1})
                                     counter[fw_fizzled['spec']['task_type']] += 1

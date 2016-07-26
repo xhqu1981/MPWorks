@@ -23,7 +23,7 @@ def icsd_dict_to_snl(icsd_dict):
 
     data = {'_icsd': {}}
     excluded_data = ['_id', 'a_len', 'b_len', 'c_len', 'alpha', 'beta', 'gamma', 'compostion', 'composition', 'created_at', 'crystal_id', 'idnum', 'journal', 'tstruct', 'updated_at', 'username']
-    for k, v in icsd_dict.iteritems():
+    for k, v in icsd_dict.items():
         if k not in excluded_data:
             if isinstance(v, datetime.datetime):
                 v = v.strftime(format='%Y-%m-%d %H:%M:%S')

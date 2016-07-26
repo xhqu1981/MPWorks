@@ -38,7 +38,7 @@ def mps_dict_to_snl(mps_dict):
         projects.append(project)
 
     data = {'_materialsproject': {'deprecated': {'mps_ids': mps_ids}}, '_icsd': {}}
-    for k, v in m['about']['metadata']['info'].iteritems():
+    for k, v in m['about']['metadata']['info'].items():
         if k == 'icsd_comments':
             data['_icsd']['comments'] = v
         elif k == 'icsd_id':

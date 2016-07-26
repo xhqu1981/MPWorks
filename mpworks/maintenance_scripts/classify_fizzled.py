@@ -111,6 +111,6 @@ if __name__ == '__main__':
                 except_dict[except_str] = except_dict[except_str]+1
 
     print('-----')
-    for k, v in except_dict.iteritems():
+    for k, v in except_dict.items():
         print({"{}\t{}".format(v, k)})
 
