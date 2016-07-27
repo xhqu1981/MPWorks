@@ -30,7 +30,7 @@ def string_list_in_file(s_list, filename, ignore_case=True):
 
     """
     matches = set()
-    with zopen(filename, 'r') as f:
+    with zopen(filename, 'rt') as f:
         for line in f:
             for s in s_list:
                 if (ignore_case and s.lower() in line.lower()) or s in line:
@@ -184,7 +184,7 @@ class SegFaultSignal(SignalDetector):
         file_names = glob.glob("%s/*.error" % dir_name)
         rx = re.compile(r'segmentation', re.IGNORECASE)
         for file_name in file_names:
-            with zopen(file_name, 'r') as f:
+            with zopen(file_name, 'rt') as f:
                 lines = f.readlines()
                 for line in lines:
                     if rx.search(line) is not None:

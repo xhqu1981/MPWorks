@@ -238,7 +238,7 @@ class MPVaspDrone(VaspToDbTaskDrone):
                 break
 
         # custom Materials Project post-processing for FireWorks
-        with zopen(zpath(os.path.join(dir_name, 'FW.json'))) as f:
+        with zopen(zpath(os.path.join(dir_name, 'FW.json')), 'rt') as f:
             fw_dict = json.load(f)
             d['fw_id'] = fw_dict['fw_id']
             d['snl'] = fw_dict['spec']['mpsnl']
