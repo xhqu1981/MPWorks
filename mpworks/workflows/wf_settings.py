@@ -36,5 +36,6 @@ class WFSettings(object):
                 '/global/scratch/sd/matcomp/wc_tests/',
                 '/global/scratch/sd/matcomp/aj_prod/',
                 '/global/scratch2/sd/matcomp/mp_prod/',
-                '/global/scratch2/sd/matcomp/mp_prod_hopper/']
+                '/global/scratch2/sd/matcomp/mp_prod_hopper/',
+                '/project/projectdirs/matgen/garden/nmr']
 
