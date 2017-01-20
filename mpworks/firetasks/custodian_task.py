@@ -41,8 +41,8 @@ def check_incar(task_type):
         if "NSW" in incar and incar["NSW"] != 0:
             errors.append("NSW must be 0 for non structure optimization runs")
 
-    if 'static' in task_type and not incar["LCHARG"]:
-        errors.append("LCHARG must be True for static runs")
+    if 'static' in task_type and not incar.get("LCHARG", True):
+            errors.append("LCHARG must be True for static runs")
 
     if 'Uniform' in task_type and incar["ICHARG"] != 11:
             errors.append("ICHARG must be 11 for Uniform runs")
