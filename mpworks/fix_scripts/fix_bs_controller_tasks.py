@@ -1,14 +1,12 @@
-import time, yaml, sys, os
-from fireworks.core.launchpad import LaunchPad
+import os
+import yaml
 from fireworks.core.firework import Firework, Workflow
-from mpworks.firetasks.controller_tasks import AddEStructureTask
+from fireworks.core.launchpad import LaunchPad
 from fireworks.utilities.fw_utilities import get_slug
-from mpworks.snl_utils.snl_mongo import SNLMongoAdapter
 from pymongo import MongoClient
-from collections import Counter
-from datetime import datetime
-from fnmatch import fnmatch
-from custodian.vasp.handlers import VaspErrorHandler
+
+from mpworks.firetasks.controller_tasks import AddEStructureTask
+from mpworks.snl_utils.snl_mongo import SNLMongoAdapter
 
 cwd = os.getcwd()
 
@@ -45,12 +43,12 @@ def append_wf(fw_id, parent_fw_id=None):
                 elif child_fw['state'] == 'COMPLETED':
                     print('AddEStructureTask v2 already successfully run for', fw_id)
                     sec_child_fw_id = wf['links'][str(child_fw_id)][0]
-		    sec_child_fw = lpdb.fireworks.find_one({'fw_id': sec_child_fw_id}, {'spec.task_type':1, 'state':1})
-		    if sec_child_fw['state'] == 'FIZZLED':
-                        lpdb.rerun_fw(sec_child_fw_id)
-		        print('FIZZLED -> marked for rerun:', sec_child_fw_id, sec_child_fw['spec']['task_type'])
-                else:
-                    print('AddEStructureTask v2 added but neither DEFUSED, FIZZLED, or COMPLETED for', fw_id)
+            sec_child_fw = lpdb.fireworks.find_one({'fw_id': sec_child_fw_id}, {'spec.task_type':1, 'state':1})
+            if sec_child_fw['state'] == 'FIZZLED':
+                lpdb.rerun_fw(sec_child_fw_id)
+                print('FIZZLED -> marked for rerun:', sec_child_fw_id, sec_child_fw['spec']['task_type'])
+            else:
+                print('AddEStructureTask v2 added but neither DEFUSED, FIZZLED, or COMPLETED for', fw_id)
                 return
         f = lpdb.get_wf_summary_dict(fw_id)['name'].replace(' ', '_')
         name = get_slug(f + '--' + spec['task_type'])
@@ -91,14 +89,14 @@ if __name__ == "__main__":
     #print 'nfws =', nfws
 
     mp_ids = [
-	'mp-2123', 'mp-10886', 'mp-582799', 'mp-21477', 'mp-535', 'mp-21293', 'mp-8700',
-	'mp-9568', 'mp-973', 'mp-505622', 'mp-20839', 'mp-1940', 'mp-16521', 'mp-30354',
-	'mp-568953', 'mp-454', 'mp-1010', 'mp-1416', 'mp-21385', 'mp-27659', 'mp-22481',
-	'mp-569529', 'mp-1057', 'mp-1834', 'mp-2336', 'mp-12857', 'mp-21109', 'mp-30387',
-	'mp-30599', 'mp-21884', 'mp-11397', 'mp-11814', 'mp-510437', 'mp-12565', 'mp-33032',
+        'mp-2123', 'mp-10886', 'mp-582799', 'mp-21477', 'mp-535', 'mp-21293', 'mp-8700',
+        'mp-9568', 'mp-973', 'mp-505622', 'mp-20839', 'mp-1940', 'mp-16521', 'mp-30354',
+        'mp-568953', 'mp-454', 'mp-1010', 'mp-1416', 'mp-21385', 'mp-27659', 'mp-22481',
+        'mp-569529', 'mp-1057', 'mp-1834', 'mp-2336', 'mp-12857', 'mp-21109', 'mp-30387',
+        'mp-30599', 'mp-21884', 'mp-11397', 'mp-11814', 'mp-510437', 'mp-12565', 'mp-33032',
         'mp-20885', 'mp-1891',
-	"mp-987", "mp-1542", "mp-2252", "mp-966", "mp-6945", "mp-1598",
-	"mp-7547", "mp-554340", "mp-384", "mp-2437", "mp-1167", "mp-571266",
+        "mp-987", "mp-1542", "mp-2252", "mp-966", "mp-6945", "mp-1598",
+        "mp-7547", "mp-554340", "mp-384", "mp-2437", "mp-1167", "mp-571266",
         "mp-560338", "mp-27253", "mp-1705", "mp-2131", "mp-676", "mp-2402", "mp-9588",
         "mp-2452", "mp-690", "mp-30033", "mp-10155", "mp-9921", "mp-9548", "mp-569857",
         "mp-29487", "mp-909", "mp-1536", "mp-28391", "mp-558811", "mp-1033", "mp-1220",
@@ -146,7 +144,7 @@ if __name__ == "__main__":
     materials_wBS = []
     for matidx, material in enumerate(materials.find({'task_id': {'$in': mp_ids}}, {'task_id': 1, '_id': 0, 'snlgroup_id_final': 1, 'has_bandstructure': 1, 'pretty_formula': 1})):
         mp_id, snlgroup_id = material['task_id'], material['snlgroup_id_final']
-	url = 'https://materialsproject.org/materials/' + mp_id
+        url = 'https://materialsproject.org/materials/' + mp_id
         if material['has_bandstructure']:
             materials_wBS.append((mp_id, material['pretty_formula']))
             counter['has_bandstructure'] += 1
