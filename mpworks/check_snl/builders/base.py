@@ -1,10 +1,15 @@
-import sys, multiprocessing, time
-from mpworks.snl_utils.mpsnl import SNLGroup
+import multiprocessing
+import sys
+import time
+
+from init_plotly import py, stream_ids, categories
 from matgendb.builders.core import Builder
 from matgendb.builders.util import get_builder_log
-from mpworks.check_snl.utils import div_plus_mod
 from pymatgen.analysis.structure_matcher import StructureMatcher, ElementComparator
-from init_plotly import py, stream_ids, categories
+
+from mpworks.check_snl.utils import div_plus_mod
+from mpworks.snl_utils.mpsnl import SNLGroup
+
 if py is not None:
     from plotly.graph_objs import *
 
@@ -83,19 +88,19 @@ class SNLGroupBaseChecker(Builder):
         heatmap_z = self._counter._getvalue() if not self._seq else self._counter
         bar_x = self._mismatch_counter._getvalue() if not self._seq else self._mismatch_counter
         md = self._mismatch_dict._getvalue() if not self._seq else self._mismatch_dict
-	try:
-	  self._streams[0].write(Heatmap(z=heatmap_z))
-	except:
-          exc_type, exc_value, exc_traceback = sys.exc_info()
-          _log.info('%r %r', exc_type, exc_value)
-	  _log.info('_push_to_plotly ERROR: heatmap=%r', heatmap_z)
-	try:
-	  self._streams[1].write(Bar(x=bar_x))
-	except:
-          exc_type, exc_value, exc_traceback = sys.exc_info()
-          _log.info('%r %r', exc_type, exc_value)
-	  _log.info('_push_to_plotly ERROR: bar=%r', bar_x)
-        for k,v in md.items():
+        try:
+            self._streams[0].write(Heatmap(z=heatmap_z))
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            _log.info('%r %r', exc_type, exc_value)
+            _log.info('_push_to_plotly ERROR: heatmap=%r', heatmap_z)
+        try:
+            self._streams[1].write(Bar(x=bar_x))
+        except:
+            exc_type, exc_value, exc_traceback = sys.exc_info()
+            _log.info('%r %r', exc_type, exc_value)
+        _log.info('_push_to_plotly ERROR: bar=%r', bar_x)
+        for k, v in md.items():
             if len(v) < 1: continue
             try:
                 self._streams[2].write(Scatter(
@@ -103,7 +108,7 @@ class SNLGroupBaseChecker(Builder):
                     y=k, text='<br>'.join(v)
                 ))
                 _log.info('_push_to_plotly: mismatch_dict[%r]=%r', k, v)
-                self._mismatch_dict.update({k:[]}) # clean
+                self._mismatch_dict.update({k: []})  # clean
                 time.sleep(0.052)
             except:
                 exc_type, exc_value, exc_traceback = sys.exc_info()
@@ -136,7 +141,7 @@ class SNLGroupBaseChecker(Builder):
         if self._lock is not None: self._lock.release()
 
     def finalize(self, errors):
-	if py is not None: self._push_to_plotly()
+    if py is not None: self._push_to_plotly()
         _log.info("%d items processed.", self._counter_total.value)
         return True
 
