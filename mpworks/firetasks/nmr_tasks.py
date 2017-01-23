@@ -111,7 +111,10 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     with open(config_file) as f:
         parent_config_dict = yaml.load(stream=f)
     config_dict = parent_config_dict[config_key]
-    incar_enforce = {'NCORE': 4}
+    if config_name == "NMR CS":
+        incar_enforce = {'KPAR': 4}
+    else:
+        incar_enforce = {'NPAR': 4}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
 
