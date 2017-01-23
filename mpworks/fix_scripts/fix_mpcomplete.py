@@ -56,6 +56,6 @@ for idoc, doc in enumerate(launchpad.fireworks.find(m_query, projection=projecti
         launch_dir = '/'.join('/oasis/projects/nsf/csd436/phuck/garden'.split('/') + block_dir)
         if not os.path.exists(launch_dir):
             print(doc['fw_id'], '---->', '/'.join(block_dir), 'does not exists!')
-	    continue
+            continue
     fw_ids.append(doc['fw_id'])
 print('fixed', fw_ids)
