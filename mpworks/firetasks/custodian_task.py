@@ -211,7 +211,7 @@ def get_custodian_task(spec):
     if 'optimize structure (2x)' in task_type:
         jobs = VaspJob.double_relaxation_run(v_exe)
     elif {'static', 'deformed', 'NMR EFG', 'NMR CS', 'Triple Jump Relax S1',
-          'Triple Jump Relax S2', 'Triple Jump Relax S3'} & set(task_type):
+          'Triple Jump Relax S2', 'Triple Jump Relax S3'} & {task_type}:
         jobs = [VaspJob(v_exe)]
     else:
         # non-SCF runs
