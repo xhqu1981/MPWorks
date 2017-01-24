@@ -314,7 +314,7 @@ def analyze(args):
     if args.t:
         if args.fig_id == 42:
             label_entries = filter(None, '<br>'.join(fig['data'][2]['text']).split('<br>'))
-            pairs = map(make_tuple, label_entries)
+            pairs = list(map(make_tuple, label_entries))
             grps = set(chain.from_iterable(pairs))
             snlgrp_cursor = sma.snlgroups.aggregate([
                 { '$match': {

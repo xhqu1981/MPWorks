@@ -10,8 +10,8 @@ if py is not None:
         for category, text in zip(fig['data'][2]['y'], fig['data'][2]['text']):
             for line in text.split('<br>'):
                 before_colon, after_colon = line.split(':')
-                snlgroup1, snlgroup2 = map(int, before_colon[1:-1].split(','))
+                snlgroup1, snlgroup2 = list(map(int, before_colon[1:-1].split(',')))
                 snls, icsd_matches = after_colon.split('->')
-                snl1, snl2 = map(int, snls[2:-2].split(','))
+                snl1, snl2 = list(map(int, snls[2:-2].split(',')))
                 icsd, matches = icsd_matches.strip().split(' ')
                 writer.writerow([snlgroup1, snlgroup2, snl1, snl2, int(icsd), matches[1:-1]])
