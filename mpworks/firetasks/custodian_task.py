@@ -139,7 +139,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
                                                 fw_env.get("vasp_cmd", "vasp"),
                                                 fw_env.get("gvasp_cmd", "gvasp"),
-                                                fw_env["alt_cmds"][fw_spec['task_type']])
+                                                fw_env["alt_cmds"][fw_spec['task_type']],
+                                                fw_env.get("input_rewind", True))
             error_list.extend(all_errors)
 
         if self.gzip_output:
@@ -160,7 +161,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
 
-    def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd, gvasp_cmd, alt_cmds):
+    def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd,
+                          gvasp_cmd, alt_cmds, input_rewind):
         error_list = []
         for new_vasp_path in alt_cmds:
             new_vasp_cmd = new_vasp_path["vasp_cmd"]
@@ -172,11 +174,12 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                 # set the vasp command to the alternative binaries
                 job.vasp_cmd = new_v_exe
                 job.gamma_vasp_cmd = new_gv_exe
-            if os.path.exists("error.1.tar.gz") and os.path.isfile("error.1.tar.gz"):
-                # restore to initial input set
-                with tarfile.open("error.1.tar.gz", "r") as tf:
-                    for filename in ["INCAR", "KPOINTS", "POSCAR"]:
-                        tf.extract(filename)
+            if not input_rewind:
+                if os.path.exists("error.1.tar.gz") and os.path.isfile("error.1.tar.gz"):
+                    # restore to initial input set
+                    with tarfile.open("error.1.tar.gz", "r") as tf:
+                        for filename in ["INCAR", "KPOINTS", "POSCAR"]:
+                            tf.extract(filename)
             all_errors = self._run_custodian(terminate_func)
             error_list.extend(all_errors)
         return error_list
