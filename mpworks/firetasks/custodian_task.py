@@ -1,3 +1,4 @@
+import tarfile
 from gzip import GzipFile
 import logging
 import socket
@@ -130,10 +131,16 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         logging.basicConfig(level=logging.DEBUG)
 
-        c = Custodian(self.handlers, self.jobs, max_errors=self.max_errors, gzipped_output=False,
-                      validators=[VasprunXMLValidator()],
-                      terminate_func=terminate_func)  # manual gzip
-        custodian_out = c.run()
+        error_list = []
+        all_errors = self._run_custodian(terminate_func)
+        error_list.extend(all_errors)
+        if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
+            logging.info("Initiate VASP calculations using alternate binaries")
+            all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
+                                                fw_env.get("vasp_cmd", "vasp"),
+                                                fw_env.get("gvasp_cmd", "gvasp"),
+                                                fw_env["alt_cmds"][fw_spec['task_type']])
+            error_list.extend(all_errors)
 
         if self.gzip_output:
             for f in os.listdir(os.getcwd()):
@@ -143,12 +150,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                         f_out.writelines(f_in)
                     os.remove(f)
 
-        all_errors = set()
-        for run in custodian_out:
-            for correction in run['corrections']:
-                all_errors.update(correction['errors'])
-
-        stored_data = {'error_list': list(all_errors)}
+        stored_data = {'error_list': error_list}
         update_spec = {'prev_vasp_dir': os.getcwd(),
                        'prev_task_type': fw_spec['task_type'],
                        'mpsnl': fw_spec['mpsnl'],
@@ -157,6 +159,38 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'parameters': fw_spec.get('parameters')}
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
+
+    def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd, gvasp_cmd, alt_cmds):
+        error_list = []
+        for new_vasp_path in alt_cmds:
+            new_vasp_cmd = new_vasp_path["vasp_cmd"]
+            new_gvasp_cmd = new_vasp_path["gvasp_cmd"]
+            new_v_exe = shlex.split(" ".join(v_exe).replace(vasp_cmd, new_vasp_cmd))
+            new_gv_exe = shlex.split(" ".join(gv_exe).replace(gvasp_cmd, new_gvasp_cmd))
+            logging.info("Run VASP with binary from {}".format(os.path.dirname(new_vasp_cmd)))
+            for job in self.jobs:
+                # set the vasp command to the alternative binaries
+                job.vasp_cmd = new_v_exe
+                job.gamma_vasp_cmd = new_gv_exe
+            if os.path.exists("error.1.tar.gz") and os.path.isfile("error.1.tar.gz"):
+                # restore to initial input set
+                with tarfile.open("error.1.tar.gz", "r") as tf:
+                    for filename in ["INCAR", "KPOINTS", "POSCAR"]:
+                        tf.extract(filename)
+            all_errors = self._run_custodian(terminate_func)
+            error_list.extend(all_errors)
+        return error_list
+
+    def _run_custodian(self, terminate_func):
+        c = Custodian(self.handlers, self.jobs, max_errors=self.max_errors, gzipped_output=False,
+                      validators=[VasprunXMLValidator()],
+                      terminate_func=terminate_func)  # manual gzip
+        custodian_out = c.run()
+        all_errors = set()
+        for run in custodian_out:
+            for correction in run['corrections']:
+                all_errors.update(correction['errors'])
+        return all_errors
 
     @staticmethod
     def _get_vasp_cmd_in_job_packing(fw_data, fw_env, mpi_cmd):
