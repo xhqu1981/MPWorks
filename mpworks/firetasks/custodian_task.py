@@ -71,7 +71,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         self.update(parameters)
         self.jobs = self['jobs']
         dec = MontyDecoder()
-        self.handlers = map(dec.process_decoded, self['handlers'])
+        self.handlers = list(map(dec.process_decoded, self['handlers']))
         self.max_errors = self.get('max_errors', 1)
         self.gzip_output = self.get('gzip_output', True)
 
