@@ -181,7 +181,7 @@ class SNLMongoAdapter(FWSerializable):
                 # DB was already locked by another process in a race condition
                 self.lock_db(n_tried=n_tried, n_max_tries=n_max_tries)
             else:
-                raise ValueError('DB locked by another process! Could not lock even after {} minutes!'.format(n_max_tries/60))
+                raise ValueError('DB locked by another process! Could not lock even after {} minutes!'.format(n_max_tries//60))
 
     def release_lock(self):
         self.id_assigner.update_many({}, {'$set':{'lock': False}})

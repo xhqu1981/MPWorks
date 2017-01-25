@@ -36,11 +36,11 @@ matcher = StructureMatcher(
 )
 
 num_ids_per_stream = 20000
-num_ids_per_stream_k = num_ids_per_stream/1000
+num_ids_per_stream_k = num_ids_per_stream//1000
 num_snls = sma.snl.count()
 num_snlgroups = sma.snlgroups.count()
 num_pairs_per_job = 1000 * num_ids_per_stream
-num_pairs_max = num_snlgroups*(num_snlgroups-1)/2
+num_pairs_max = num_snlgroups*(num_snlgroups-1)//2
 
 num_snl_streams = div_plus_mod(num_snls, num_ids_per_stream)
 num_snlgroup_streams = div_plus_mod(num_snlgroups, num_ids_per_stream)
@@ -113,7 +113,7 @@ class PairIterator:
     def _get_initial_pair(self, job_id):
         N, J, M = num_snlgroups, job_id, num_pairs_per_job
         i = int(N+.5-sqrt(N*(N-1)+.25-2*J*M))
-        j = J*M-(i-1)*(2*N-i)/2+i+1
+        j = J*M-(i-1)*(2*N-i)//2+i+1
         return Pair(i,j)
     def next(self):
         if self.num_pairs > num_pairs_per_job:
@@ -202,7 +202,7 @@ def init_plotly(args):
 
 def check_snl_spacegroups(args):
     """check spacegroups of all available SNLs"""
-    range_index = args.start / num_ids_per_stream
+    range_index = args.start // num_ids_per_stream
     idxs = [range_index*2]
     idxs += [idxs[0]+1]
     s = [py.Stream(stream_ids[i]) for i in idxs]
@@ -242,7 +242,7 @@ def check_snl_spacegroups(args):
 
 def check_snls_in_snlgroups(args):
     """check whether SNLs in each SNLGroup still match resp. canonical SNL"""
-    range_index = args.start / num_ids_per_stream
+    range_index = args.start // num_ids_per_stream
     idxs = [2*(num_snl_streams+range_index)]
     idxs += [idxs[0]+1]
     s = [py.Stream(stream_ids[i]) for i in idxs]

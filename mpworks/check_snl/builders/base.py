@@ -71,7 +71,7 @@ class SNLGroupBaseChecker(Builder):
             return self._snls.query(distinct_key='snl_id')
 
     def process_item(self, item, index):
-        nrow, ncol = index/self._ncols, index%self._ncols
+        nrow, ncol = index//self._ncols, index%self._ncols
         snlgroups = {} # keep {snlgroup_id: SNLGroup} to avoid dupe queries
         if isinstance(item, dict) and 'snlgroup_ids' in item:
             for gid in item['snlgroup_ids']:

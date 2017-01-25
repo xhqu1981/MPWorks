@@ -222,7 +222,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                                         ranks_flag=ranks_num_flag[mpirun],
                                         nproc=sub_nproc,
                                         tpn_flag=tasks_per_node_flag[mpirun],
-                                        tpn=int(fw_data.SUB_NPROCS)/len(fw_data.NODE_LIST),
+                                        tpn=int(fw_data.SUB_NPROCS)//len(fw_data.NODE_LIST),
                                         nl_flag=nodelist_flag[mpirun],
                                         nl=','.join(fw_data.NODE_LIST),
                                         vasp_cmd=vasp_cmd))
