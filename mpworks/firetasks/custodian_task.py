@@ -210,6 +210,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                       "mpirun": "",
                       "aprun": ""}
         mpirun = mpi_cmd.split()[0]
+        if "srun" in mpi_cmd:
+            mpi_cmd += " -v"
         fw_data = FWData()
         #  Don't honor the SLURM_NTASKS in case of job packing, Because SLURM_NTASKS is referring
         #  to total number of processes of the parent job
