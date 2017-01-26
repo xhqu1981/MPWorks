@@ -10,7 +10,7 @@ from custodian.vasp.handlers import VaspErrorHandler, NonConvergingErrorHandler,
 from custodian.vasp.validators import VasprunXMLValidator
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.utilities.fw_serializers import FWSerializable
-from custodian.custodian import Custodian
+from custodian.custodian import Custodian, CustodianError
 from custodian.vasp.jobs import VaspJob
 import shlex
 import os
@@ -132,16 +132,23 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         logging.basicConfig(level=logging.DEBUG)
 
         error_list = []
-        all_errors = self._run_custodian(terminate_func)
-        error_list.extend(all_errors)
-        if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
-            logging.info("Initiate VASP calculations using alternate binaries")
-            all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
-                                                fw_env.get("vasp_cmd", "vasp"),
-                                                fw_env.get("gvasp_cmd", "gvasp"),
-                                                fw_env["alt_cmds"][fw_spec['task_type']],
-                                                fw_env.get("input_rewind", True))
+        cus_ex = None
+        try:
+            all_errors = self._run_custodian(terminate_func)
             error_list.extend(all_errors)
+        except CustodianError as ex:
+            cus_ex = ex
+        if cus_ex is not None:
+            if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
+                logging.info("Initiate VASP calculations using alternate binaries")
+                all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
+                                                    fw_env.get("vasp_cmd", "vasp"),
+                                                    fw_env.get("gvasp_cmd", "gvasp"),
+                                                    fw_env["alt_cmds"][fw_spec['task_type']],
+                                                    fw_env.get("input_rewind", True))
+                error_list.extend(all_errors)
+            else:
+                raise cus_ex
 
         if self.gzip_output:
             for f in os.listdir(os.getcwd()):
@@ -164,6 +171,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
     def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd,
                           gvasp_cmd, alt_cmds, input_rewind):
         error_list = []
+        cus_ex = None
         for new_vasp_path in alt_cmds:
             new_vasp_cmd = new_vasp_path["vasp_cmd"]
             new_gvasp_cmd = new_vasp_path["gvasp_cmd"]
@@ -180,8 +188,16 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                     with tarfile.open("error.1.tar.gz", "r") as tf:
                         for filename in ["INCAR", "KPOINTS", "POSCAR"]:
                             tf.extract(filename)
-            all_errors = self._run_custodian(terminate_func)
-            error_list.extend(all_errors)
+            cus_ex = None
+            try:
+                all_errors = self._run_custodian(terminate_func)
+                error_list.extend(all_errors)
+            except CustodianError as ex:
+                cus_ex = ex
+            if cus_ex is None:
+                break
+        if cus_ex is not None:
+            raise cus_ex
         return error_list
 
     def _run_custodian(self, terminate_func):
