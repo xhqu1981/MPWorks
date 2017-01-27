@@ -136,7 +136,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         try:
             all_errors = self._run_custodian(terminate_func)
             error_list.extend(all_errors)
-        except CustodianError as ex:
+        except Exception as ex:
             cus_ex = ex
         if cus_ex is not None:
             if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
@@ -193,7 +193,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             try:
                 all_errors = self._run_custodian(terminate_func)
                 error_list.extend(all_errors)
-            except CustodianError as ex:
+            except Exception as ex:
                 cus_ex = ex
             if cus_ex is None:
                 break
