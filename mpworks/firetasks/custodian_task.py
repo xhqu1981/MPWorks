@@ -140,6 +140,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             cus_ex = ex
         if cus_ex is not None:
             if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
+                cus_ex = None
                 logging.info("Initiate VASP calculations using alternate binaries")
                 all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
                                                     fw_env.get("vasp_cmd", "vasp"),
