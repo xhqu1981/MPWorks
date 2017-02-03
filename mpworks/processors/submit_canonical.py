@@ -34,7 +34,7 @@ def clear_env():
     lp.reset('', require_password=False)
     snl._reset()
 
-    conn = MongoClient(db_creds['host'], db_creds['port'])
+    conn = MongoClient(db_creds['host'], db_creds['port'], connect=False)
     db = conn[db_creds['database']]
     if db_creds['admin_user'] is not None:
         db.authenticate(db_creds['admin_user'], db_creds['admin_password'])

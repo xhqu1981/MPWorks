@@ -28,7 +28,7 @@ class SNLMongoAdapter(FWSerializable):
         self.username = username
         self.password = password
 
-        self.connection = MongoClient(host, port, j=False)
+        self.connection = MongoClient(host, port, j=False, connect=False)
         self.database = self.connection[db]
         if self.username:
             self.database.authenticate(username, password)

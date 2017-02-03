@@ -75,7 +75,7 @@ class MPVaspDrone(VaspToDbTaskDrone):
             # Perform actual insertion into db. Because db connections cannot
             # be pickled, every insertion needs to create a new connection
             # to the db.
-            conn = MongoClient(self.host, self.port)
+            conn = MongoClient(self.host, self.port, connect=False)
             db = conn[self.database]
             if self.user:
                 db.authenticate(self.user, self.password)
