@@ -9,6 +9,8 @@ import logging
 import os
 import shutil
 import sys
+
+from fireworks.fw_config import FWData
 from monty.os.path import zpath
 from custodian.vasp.handlers import UnconvergedErrorHandler
 from fireworks.core.launchpad import LaunchPad
@@ -164,6 +166,12 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         sh = logging.StreamHandler(stream=sys.stdout)
         sh.setLevel(getattr(logging, 'INFO'))
         logger.addHandler(sh)
+        fw_data = FWData()
+        if not fw_data.MULTIPROCESSING:
+            launch_coll = LaunchPad.auto_load().launches
+        else:
+            lp = fw_data.lp
+            launch_coll = lp.launches
         with open(db_path) as f:
             db_creds = json.load(f)
             drone = MPVaspDrone(host=db_creds['host'], port=db_creds['port'],
@@ -172,7 +180,7 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
                                 collection=db_creds['collection'], parse_dos=parse_dos,
                                 additional_fields=self.additional_fields,
                                 update_duplicates=self.update_duplicates)
-            t_id, d = drone.assimilate(prev_dir, launches_coll=LaunchPad.auto_load().launches)
+            t_id, d = drone.assimilate(prev_dir, launches_coll=launch_coll)
 
         mpsnl = d['snl_final'] if 'snl_final' in d else d['snl']
         snlgroup_id = d['snlgroup_id_final'] if 'snlgroup_id_final' in d else d['snlgroup_id']
