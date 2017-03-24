@@ -68,6 +68,10 @@ def get_block_part(m_dir):
 def get_loc(m_dir):
     if os.path.exists(m_dir):
         return m_dir
+    if re.match("/global/cscratch1/sd/\w+[.]new/.+", m_dir):
+        new_scr = m_dir.replace(".new", "")
+        if os.path.exists(new_scr):
+            return new_scr
     block_part = get_block_part(m_dir)
 
     for preamble in WFSettings().RUN_LOCS:
