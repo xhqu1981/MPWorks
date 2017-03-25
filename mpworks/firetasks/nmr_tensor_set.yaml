@@ -17,7 +17,7 @@ CS:
     PREC: ACCURATE
     SIGMA: 0.01
   KPOINTS:
-    grid_density: 6000
+    length: 60
   POTCAR:
     C: C_h
     H: H_h
@@ -130,7 +130,7 @@ EFG:
         Ra-223: 1210.3
     SIGMA: 0.05
   KPOINTS:
-    grid_density: 3000
+    length: 30
   POTCAR:
     C: C
     H: H

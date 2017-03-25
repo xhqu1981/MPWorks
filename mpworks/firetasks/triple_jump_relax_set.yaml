@@ -17,7 +17,7 @@ STEP1:
     PREC: ACCURATE
     SIGMA: 0.1
   KPOINTS:
-    grid_density: 1000
+    length: 10
   POTCAR:
     C: C
     H: H
@@ -55,7 +55,7 @@ STEP2:
     PREC: ACCURATE
     SIGMA: 0.03
   KPOINTS:
-    grid_density: 3000
+    length: 30
   POTCAR:
     C: C_h
     H: H_h
@@ -96,7 +96,7 @@ STEP3:
     SIGMA: 0.01
     TIMESTEP: 0.05
   KPOINTS:
-    grid_density: 6000
+    length: 60
   POTCAR:
     C: C_h
     H: H_h
