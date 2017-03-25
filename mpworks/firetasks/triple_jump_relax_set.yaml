@@ -17,7 +17,7 @@ STEP1:
     PREC: ACCURATE
     SIGMA: 0.1
   KPOINTS:
-    length: 10
+    length: 16
   POTCAR:
     C: C
     H: H
@@ -55,7 +55,7 @@ STEP2:
     PREC: ACCURATE
     SIGMA: 0.03
   KPOINTS:
-    length: 30
+    length: 24
   POTCAR:
     C: C_h
     H: H_h
@@ -96,7 +96,7 @@ STEP3:
     SIGMA: 0.01
     TIMESTEP: 0.05
   KPOINTS:
-    length: 60
+    length: 32
   POTCAR:
     C: C_h
     H: H_h
