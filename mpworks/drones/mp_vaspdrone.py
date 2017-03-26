@@ -5,6 +5,8 @@ import logging
 import pprint
 import re
 import traceback
+import warnings
+
 from monty.io import zopen
 from monty.os.path import zpath
 from pymongo import MongoClient
@@ -277,6 +279,14 @@ class MPVaspDrone(VaspToDbTaskDrone):
                     d['snlgroup_id_final'] = snlgroup_id
                     d['snlgroup_changed'] = (d['snlgroup_id'] !=
                                              d['snlgroup_id_final'])
+                    if len(d["calculations"][-1]["output"]["ionic_steps"]) >= 3 and not d['snlgroup_changed']:
+                        message = "The structure has been relaxed for >=3 step, however, final structure" \
+                                  "ends in the snlgroup with the initial group, please change either structure" \
+                                  "relax criteria or StructureMatcher tolerance"
+                        if "NMR" not in mpsnl.projects:
+                            warnings.warn(message)
+                        else:
+                            raise ValueError(message)
                 else:
                     d['snl_final'] = d['snl']
                     d['snlgroup_id_final'] = d['snlgroup_id']
