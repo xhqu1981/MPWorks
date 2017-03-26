@@ -11,6 +11,7 @@ import shutil
 import sys
 
 from fireworks.fw_config import FWData
+from monty.io import zopen
 from monty.os.path import zpath
 from custodian.vasp.handlers import UnconvergedErrorHandler
 from fireworks.core.launchpad import LaunchPad
@@ -132,6 +133,20 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         self.additional_fields = self.get('additional_fields', {})
         self.update_duplicates = self.get('update_duplicates', False)  # off so DOS/BS doesn't get entered twice
 
+    def same_fw_occurrences_in_cur_wflow(self, prev_dir, lp):
+        with zopen(zpath(os.path.join(prev_dir, 'FW.json')), 'rt') as f:
+            fw_dict = json.load(f)
+        prev_vasp_fw_id = fw_dict["launches"][0]["fw_id"]
+        prev_vasp_launch_id = fw_dict["launches"][0]["launch_id"]
+        prev_vasp_launch_assoc_fw_ids = [doc["fw_id"] for doc in
+                                         lp.fireworks.find({"launches": prev_vasp_launch_id}, projection=["fw_id"])]
+
+        cur_wf_fw_ids = lp.workflows.find({"nodes": prev_vasp_fw_id})[0]["nodes"]
+        # preferably current fw_id, however, there no mechanism to get it.
+
+        num_occurrences = len(set(cur_wf_fw_ids) & set(prev_vasp_launch_assoc_fw_ids))
+        return num_occurrences
+
     def run_task(self, fw_spec):
         if '_fizzled_parents' in fw_spec and not 'prev_vasp_dir' in fw_spec:
             prev_dir = get_loc(fw_spec['_fizzled_parents'][0]['launches'][0]['launch_dir'])
@@ -168,7 +183,8 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         logger.addHandler(sh)
         fw_data = FWData()
         if not fw_data.MULTIPROCESSING:
-            launch_coll = LaunchPad.auto_load().launches
+            lp = LaunchPad.auto_load()
+            launch_coll = lp.launches
         else:
             lp = fw_data.lp
             launch_coll = lp.launches
@@ -200,6 +216,10 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         # not successful - first test to see if UnconvergedHandler is needed
         if not fizzled_parent:
             unconverged_tag = 'unconverged_handler--{}'.format(fw_spec['prev_task_type'])
+            if self.same_fw_occurrences_in_cur_wflow(prev_dir, lp) > 1:
+                raise ValueError("Same Dynamics FW launch has been already existed in"
+                                 "the database for more than twice, stop spawn new FW"
+                                 "to avoid infinite loop")
             output_dir = last_relax(os.path.join(prev_dir, 'vasprun.xml'))
             ueh = UnconvergedErrorHandler(output_filename=output_dir)
             # TODO: make this a little more flexible
