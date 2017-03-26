@@ -3,6 +3,7 @@ from gzip import GzipFile
 import logging
 import socket
 
+import shutil
 from fireworks.fw_config import FWData
 from monty.os.path import which
 from custodian.vasp.handlers import VaspErrorHandler, NonConvergingErrorHandler, \
@@ -189,6 +190,10 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                     with tarfile.open("error.1.tar.gz", "r") as tf:
                         for filename in ["INCAR", "KPOINTS", "POSCAR"]:
                             tf.extract(filename)
+            if os.path.exists("CONTCAR"):
+                if os.path.exists("POSCAR"):
+                    os.remove("POSCAR")
+                shutil.move("CONTCAR")
             cus_ex = None
             try:
                 all_errors = self._run_custodian(terminate_func)
