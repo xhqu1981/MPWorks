@@ -193,7 +193,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
             if os.path.exists("CONTCAR"):
                 if os.path.exists("POSCAR"):
                     os.remove("POSCAR")
-                shutil.move("CONTCAR")
+                shutil.move("CONTCAR", "POSCAR")
             cus_ex = None
             try:
                 all_errors = self._run_custodian(terminate_func)
