@@ -183,7 +183,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                 # set the vasp command to the alternative binaries
                 job.vasp_cmd = new_v_exe
                 job.gamma_vasp_cmd = new_gv_exe
-            if not input_rewind:
+            if input_rewind:
                 if os.path.exists("error.1.tar.gz") and os.path.isfile("error.1.tar.gz"):
                     # restore to initial input set
                     with tarfile.open("error.1.tar.gz", "r") as tf:
