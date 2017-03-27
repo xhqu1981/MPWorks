@@ -188,9 +188,9 @@ class SNLGroup():
             stol = 0.3
             angle_tol = 5.0
         else:
-            ltol = 0.002
-            stol = 0.003
-            angle_tol = 0.05
+            ltol = 0.0002
+            stol = 0.0003
+            angle_tol = 0.005
         sm = StructureMatcher(ltol=ltol, stol=stol, angle_tol=angle_tol, primitive_cell=True, scale=True,
                               attempt_supercell=False, comparator=ElementComparator())
 
