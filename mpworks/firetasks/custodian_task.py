@@ -147,7 +147,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                                                     fw_env.get("vasp_cmd", "vasp"),
                                                     fw_env.get("gvasp_cmd", "gvasp"),
                                                     fw_env["alt_cmds"][fw_spec['task_type']],
-                                                    fw_env.get("input_rewind", True))
+                                                    fw_env.get("input_rewind", True),
+                                                    fw_spec['mpsnl'].structure)
                 error_list.extend(all_errors)
             else:
                 raise cus_ex
@@ -171,7 +172,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         return FWAction(stored_data=stored_data, update_spec=update_spec)
 
     def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd,
-                          gvasp_cmd, alt_cmds, input_rewind):
+                          gvasp_cmd, alt_cmds, input_rewind, structure):
         error_list = []
         cus_ex = None
         for new_vasp_path in alt_cmds:
@@ -191,9 +192,15 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                         for filename in ["INCAR", "KPOINTS", "POSCAR"]:
                             tf.extract(filename)
             if os.path.exists("CONTCAR"):
-                if os.path.exists("POSCAR"):
-                    os.remove("POSCAR")
-                shutil.move("CONTCAR", "POSCAR")
+                natoms = len(structure)
+                with open("CONTCAR") as f:
+                    contcar_lines = f.readlines()
+                n_contcar_lines = len(contcar_lines)
+                if n_contcar_lines > natoms + 5:
+                    # valid CONTCAR file
+                    if os.path.exists("POSCAR"):
+                        os.remove("POSCAR")
+                    shutil.move("CONTCAR", "POSCAR")
             cus_ex = None
             try:
                 all_errors = self._run_custodian(terminate_func)
