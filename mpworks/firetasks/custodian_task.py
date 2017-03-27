@@ -1,4 +1,5 @@
 import tarfile
+from glob import glob
 from gzip import GzipFile
 import logging
 import socket
@@ -185,12 +186,29 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                 # set the vasp command to the alternative binaries
                 job.vasp_cmd = new_v_exe
                 job.gamma_vasp_cmd = new_gv_exe
+
+            # backup the files for the last VASP binary run
+            error_file_prefix = "error"
+            error_num = max([0] + [int(f.split(".")[1])
+                                   for f in glob("{}.*.tar.gz".format(error_file_prefix))])
+            error_filename = "{}.{}.tar.gz".format(error_file_prefix, error_num)
+            binary_file_prefix = "binary"
+            binary_num = max([0] + [int(f.split(".")[1])
+                                    for f in glob("{}.*.tar.gz".format(binary_file_prefix))])
+            binary_filename = "{}.{}.tar.gz".format(binary_file_prefix, binary_num + 1)
+            with tarfile.open(binary_filename, "w:gz") as tar:
+                for fname in ["custodian.json", error_filename, "CONTCAR"]:
+                    for f in glob(fname):
+                        tar.add(f)
+
             if input_rewind:
+                # rewind the input to every beginning
                 if os.path.exists("error.1.tar.gz") and os.path.isfile("error.1.tar.gz"):
                     # restore to initial input set
                     with tarfile.open("error.1.tar.gz", "r") as tf:
                         for filename in ["INCAR", "KPOINTS", "POSCAR"]:
                             tf.extract(filename)
+
             if os.path.exists("CONTCAR"):
                 natoms = len(structure)
                 with open("CONTCAR") as f:
@@ -201,6 +219,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                     if os.path.exists("POSCAR"):
                         os.remove("POSCAR")
                     shutil.move("CONTCAR", "POSCAR")
+
+            # run the calculation
             cus_ex = None
             try:
                 all_errors = self._run_custodian(terminate_func)
@@ -211,6 +231,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                 break
         if cus_ex is not None:
             raise cus_ex
+
         return error_list
 
     def _run_custodian(self, terminate_func):
