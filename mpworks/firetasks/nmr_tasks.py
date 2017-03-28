@@ -11,6 +11,7 @@ from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
 from mpworks.firetasks.vasp_io_tasks import VaspToDBTask
+from mpworks.firetasks.vasp_setup_tasks import SetupUnconvergedHandlerTask
 from mpworks.workflows.wf_settings import WFSettings
 from mpworks.workflows.wf_utils import get_loc
 
@@ -184,6 +185,25 @@ class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
     def run_task(self, fw_spec):
         _change_garden_setting()
         return super(TripleJumpRelaxVaspToDBTask, self).run_task(fw_spec)
+
+
+class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
+    _fw_name = "Unconverged Handler Task"
+
+    def run_task(self, fw_spec):
+        module_dir = os.path.abspath(os.path.dirname(__file__))
+        config_file = os.path.join(module_dir, "triple_jump_relax_set.yaml")
+        config_key = "STEP_DYNA3"
+        with open(config_file) as f:
+            parent_config_dict = yaml.load(stream=f)
+        config_dict = parent_config_dict[config_key]
+        incar_update = config_dict["INCAR"]
+        actions = [{"dict": "INCAR",
+                    "action": {"_set": incar_update}}]
+        from custodian.vasp.interpreter import VaspModder
+        tj_action = VaspModder().apply_actions(actions)
+        parent_action = super(SetupTripleJumpRelaxS3UnconvergedHandlerTask).run_task(fw_spec)
+        return tj_action + parent_action
 
 
 class DictVaspSetupTask(FireTaskBase, FWSerializable):

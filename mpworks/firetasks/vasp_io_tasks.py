@@ -248,9 +248,15 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
                 f = Composition(
                     snl.structure.composition.reduced_formula).alphabetical_formula
 
+                if fw_spec['prev_task_type'] == "Triple Jump Relax S3":
+                    from mpworks.firetasks.nmr_tasks import SetupTripleJumpRelaxS3UnconvergedHandlerTask
+                    unconv_handler_task = SetupTripleJumpRelaxS3UnconvergedHandlerTask()
+                else:
+                    unconv_handler_task = SetupUnconvergedHandlerTask()
+
                 fws.append(Firework(
                     [VaspCopyTask({'files': ['INCAR', 'KPOINTS', 'POSCAR', 'POTCAR', 'CONTCAR'],
-                                   'use_CONTCAR': False}), SetupUnconvergedHandlerTask(),
+                                   'use_CONTCAR': False}), unconv_handler_task,
                      get_custodian_task(spec)], spec, name=get_slug(f + '--' + spec['task_type']),
                     fw_id=-2))
 

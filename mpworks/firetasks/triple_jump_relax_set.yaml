@@ -111,3 +111,10 @@ STEP3:
     Ca: Ca_pv
     Y: Y_sv
     Gd: Gd
+
+STEP_DYNA3:
+  INCAR:
+    FTIMEMAX: 0.01
+    MAXMOVE: 0.002
+    TIMESTEP: 0.001
+    FNMIN: 2
