@@ -181,13 +181,8 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         sh = logging.StreamHandler(stream=sys.stdout)
         sh.setLevel(getattr(logging, 'INFO'))
         logger.addHandler(sh)
-        fw_data = FWData()
-        if not fw_data.MULTIPROCESSING:
-            lp = LaunchPad.auto_load()
-            launch_coll = lp.launches
-        else:
-            lp = fw_data.lp
-            launch_coll = lp.launches
+        lp = LaunchPad.auto_load()
+        launch_coll = lp.launches
         with open(db_path) as f:
             db_creds = json.load(f)
             drone = MPVaspDrone(host=db_creds['host'], port=db_creds['port'],
