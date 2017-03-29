@@ -188,7 +188,7 @@ class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
 
 
 class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
-    _fw_name = "Unconverged Handler Task"
+    _fw_name = "Triple Jump Relax S3 Unconverged Handler Task"
 
     def run_task(self, fw_spec):
         module_dir = os.path.abspath(os.path.dirname(__file__))
