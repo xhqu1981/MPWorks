@@ -101,11 +101,9 @@ class VaspCopyTask(FireTaskBase, FWSerializable):
                 shutil.copy2(prev_filename, dest_file)
                 if '.gz' in dest_file:
                     # unzip dest file
-                    f = gzip.open(dest_file, 'rb')
-                    file_content = f.read()
-                    with open(dest_file[0:-3], 'wb') as f_out:
-                        f_out.writelines(file_content)
-                    f.close()
+                    with gzip.open(dest_file, 'rb') as f_in:
+                        with open(dest_file[0:-3], 'wb') as f_out:
+                            shutil.copyfileobj(f_in, f_out)
                     os.remove(dest_file)
 
         if self.use_contcar and not self.keep_velocities:
