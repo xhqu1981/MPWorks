@@ -202,7 +202,7 @@ class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
                     "action": {"_set": incar_update}}]
         from custodian.vasp.interpreter import VaspModder
         tj_action = VaspModder().apply_actions(actions)
-        parent_action = super(SetupTripleJumpRelaxS3UnconvergedHandlerTask).run_task(fw_spec)
+        parent_action = super(SetupTripleJumpRelaxS3UnconvergedHandlerTask, self).run_task(fw_spec)
         return tj_action + parent_action
 
 
