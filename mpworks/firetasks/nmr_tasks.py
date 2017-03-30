@@ -201,9 +201,9 @@ class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
         actions = [{"dict": "INCAR",
                     "action": {"_set": incar_update}}]
         from custodian.vasp.interpreter import VaspModder
-        tj_action = VaspModder().apply_actions(actions)
+        VaspModder().apply_actions(actions)
         parent_action = super(SetupTripleJumpRelaxS3UnconvergedHandlerTask, self).run_task(fw_spec)
-        return tj_action + parent_action
+        return parent_action
 
 
 class DictVaspSetupTask(FireTaskBase, FWSerializable):
