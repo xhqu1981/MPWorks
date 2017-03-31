@@ -236,7 +236,7 @@ class ScanFunctionalSetupTask(FireTaskBase, FWSerializable):
     _fw_name = "SCAN Functional Setup Task"
 
     def run_task(self, fw_spec):
-        functional = fw_spec.get("function", "PBE")
+        functional = fw_spec.get("functional", "PBE")
         if functional == "SCAN":
             incar_update = {"METAGGA": "Rtpss",
                             "LASPH": True}
