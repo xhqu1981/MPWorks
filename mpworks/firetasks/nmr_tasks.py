@@ -50,8 +50,12 @@ def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
 
 
 def _config_dict_to_input_set(config_dict, structure, incar_enforce, parameters):
+    functional = parameters.get("functional", "PBE")
+    pot_map = {"PBE": "PBE", "SCAN": "PBE_52"}
+    potcar_functional = pot_map[functional]
     trial_set = DictSet(structure, config_dict=config_dict,
-                        user_incar_settings=incar_enforce)
+                        user_incar_settings=incar_enforce,
+                        potcar_functional=potcar_functional)
     trial_potcar = trial_set.potcar
     all_enmax = [sp.enmax for sp in trial_potcar]
     all_eaug = [sp.eaug for sp in trial_potcar]
@@ -73,7 +77,8 @@ def _config_dict_to_input_set(config_dict, structure, incar_enforce, parameters)
         quad_efg = [_get_nuclear_quadrupole_moment(el, nqm_map, parameters) for el in all_elements]
         processed_config_dict["INCAR"]["QUAD_EFG"] = quad_efg
     vis = DictSet(structure, config_dict=processed_config_dict,
-                  user_incar_settings=incar_enforce)
+                  user_incar_settings=incar_enforce,
+                  potcar_functional=potcar_functional)
     return vis
 
 
