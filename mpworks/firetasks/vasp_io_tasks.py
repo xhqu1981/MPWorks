@@ -194,6 +194,8 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
         mpsnl = d['snl_final'] if 'snl_final' in d else d['snl']
         snlgroup_id = d['snlgroup_id_final'] if 'snlgroup_id_final' in d else d['snlgroup_id']
         update_spec.update({'mpsnl': mpsnl, 'snlgroup_id': snlgroup_id})
+        if 'functional' in fw_spec:
+            d['functional'] = fw_spec['spec']
 
         print('ENTERED task id:', t_id)
         stored_data = {'task_id': t_id}
@@ -234,6 +236,8 @@ class VaspToDBTask(FireTaskBase, FWSerializable):
                 snl = StructureNL.from_dict(spec['mpsnl'])
                 spec['run_tags'].append(unconverged_tag)
                 spec['_queueadapter'] = QA_VASP
+                if 'functional' in fw_spec:
+                    spec['functional'] = fw_spec['spec']
 
                 fws = []
                 connections = {}

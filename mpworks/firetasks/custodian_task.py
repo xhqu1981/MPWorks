@@ -169,6 +169,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'snlgroup_id': fw_spec['snlgroup_id'],
                        'run_tags': fw_spec['run_tags'],
                        'parameters': fw_spec.get('parameters')}
+        if 'functional' in fw_spec:
+            update_spec['functional'] = fw_spec['spec']
 
         return FWAction(stored_data=stored_data, update_spec=update_spec)
 

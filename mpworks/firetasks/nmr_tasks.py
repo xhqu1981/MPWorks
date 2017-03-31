@@ -1,6 +1,8 @@
 import copy
 import json
 import os
+
+import shutil
 import yaml
 from fireworks import FireTaskBase
 from fireworks.core.firework import FWAction
@@ -89,7 +91,7 @@ def _change_garden_setting():
 
 
 def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_run_tags=()):
-    parameters = parameters if parameters else {}
+    parameters = copy.deepcopy(parameters) if parameters else {}
     spec = {'parameters': parameters}
 
     module_dir = os.path.abspath(os.path.dirname(__file__))
@@ -222,3 +224,39 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         vis.potcar.write_file("POTCAR")
         vis.kpoints.write_file("KPOINTS")
         return FWAction(stored_data={"vasp_input_set": vis.as_dict()})
+
+
+class ScanFunctionalSetupTask(FireTaskBase, FWSerializable):
+    """
+    This class is to setup the SCAN functional calculation for the
+    hack version of VASP. If official SCAN functional supported VASP
+    is release, the run_task() method body can be set to "pass". It
+    will make the workflow compatible with the new VASP version.
+    """
+    _fw_name = "SCAN Functional Setup Task"
+
+    def run_task(self, fw_spec):
+        functional = fw_spec.get("function", "PBE")
+        if functional == "SCAN":
+            incar_update = {"METAGGA": "Rtpss",
+                            "LASPH": True}
+            actions = [{"dict": "INCAR",
+                        "action": {"_set": incar_update}}]
+            from custodian.vasp.interpreter import VaspModder
+            VaspModder().apply_actions(actions)
+
+            # guarantee VASP is the hacked version
+            fw_env = fw_spec.get("_fw_env", {})
+            vasp_cmd = fw_env.get("vasp_cmd", "vasp")
+            if os.path.exists(vasp_cmd):
+                vasp_path = vasp_cmd
+            else:
+                vasp_path = shutil.which("vasp")
+            hacked_path = "/global/common/matgen/das/vasp/5.3.5-scan-beta/bin/vasp"
+            if vasp_path != hacked_path:
+                my_name = str(self.__class__).replace("<class '", "").replace("'>", "")
+                raise ValueError("'{}' is designed to support the hack of VASP, "
+                                 "upon official release of VASP SCAN function, this class"
+                                 "should be modified".format(my_name))
+        else:
+            pass

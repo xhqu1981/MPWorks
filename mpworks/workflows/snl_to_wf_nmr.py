@@ -8,7 +8,8 @@ from pymatgen import Composition
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderDB
 from mpworks.firetasks.custodian_task import get_custodian_task
-from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask, DictVaspSetupTask, TripleJumpRelaxVaspToDBTask
+from mpworks.firetasks.nmr_tasks import snl_to_nmr_spec, NmrVaspToDBTask, DictVaspSetupTask, \
+    TripleJumpRelaxVaspToDBTask, ScanFunctionalSetupTask
 from mpworks.firetasks.snl_tasks import AddSNLTask
 from mpworks.firetasks.vasp_io_tasks import VaspWriterTask, VaspCopyTask, VaspToDBTask
 from mpworks.snl_utils.mpsnl import MPStructureNL, get_meta_from_structure
@@ -34,7 +35,12 @@ def get_nmr_vasp_fw(fwid, copy_contcar, istep, nick_name, parameters, priority, 
     spec['_priority'] = priority
     spec['_queueadapter'] = QA_VASP
     spec['_trackers'] = trackers
-    tasks = [DictVaspSetupTask(), get_custodian_task(spec)]
+    tasks = [DictVaspSetupTask()]
+    functional = parameters.get("functional", "PBE")
+    spec["functional"] = functional
+    if functional != "PBE":
+        tasks.append(ScanFunctionalSetupTask())
+    tasks.append(get_custodian_task(spec))
     vasp_fw = Firework(tasks, spec, name=get_slug(nick_name + '--' + spec['task_type']),
                        fw_id=fwid)
     return vasp_fw
@@ -63,6 +69,9 @@ def snl_to_wf_nmr(snl, parameters):
 
     f = Composition(snl.structure.composition.reduced_formula).alphabetical_formula
     nick_name = parameters.get("nick_name", f)
+    functional = parameters.get("functional", "PBE")
+    if functional != "PBE":
+        nick_name += "_FUNC_" + functional
 
     if 'exact_structure' in parameters and parameters['exact_structure']:
         structure = snl.structure
