@@ -8,6 +8,7 @@ from fireworks import FireTaskBase
 from fireworks.core.firework import FWAction
 from fireworks.utilities.fw_serializers import FWSerializable
 from monty.os.path import zpath
+from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.io.vasp import Outcar
 from pymatgen.io.vasp.sets import DictSet
 
@@ -95,6 +96,23 @@ def _change_garden_setting():
         WFSettings().GARDEN = os.path.join(WFSettings().GARDEN, 'nmr')
 
 
+def _assign_potcar_valence(structure, potcar_dict):
+    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb_3", "Tm_3"}
+    di_val_elements = {"Er", "Eu", "Yb"}
+    st_elements = set([specie.symbol for specie in structure.species])
+    bva = BVAnalyzer()
+    valences = bva.get_valences(structure)
+    for val, val_elements in [[3, tri_val_elements],
+                              [2, di_val_elements]]:
+        for el in sorted(val_elements & st_elements):
+            if "_" in potcar_dict[el]:
+                continue
+            el_indices = structure.indices_from_symbol(el)
+            cur_el_valences = {valences[i] for i in el_indices}
+            if len(cur_el_valences) == 1 and val in cur_el_valences:
+                potcar_dict[el] = "{el}_{val:d}".format(el=el, val=val)
+
+
 def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_run_tags=()):
     parameters = copy.deepcopy(parameters) if parameters else {}
     spec = {'parameters': parameters}
@@ -125,6 +143,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
         incar_enforce = {'NPAR': 4}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
+    _assign_potcar_valence(structure, config_dict["POTCAR"])
 
     mpvis = _config_dict_to_input_set(config_dict, structure,
                                       incar_enforce, parameters=parameters)
