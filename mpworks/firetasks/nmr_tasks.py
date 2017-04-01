@@ -250,7 +250,8 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         mpsnl = fw_spec["mpsnl"]
         structure = self._sort_structure_by_encut(mpsnl.structure, config_dict)
         vis = DictSet(structure, config_dict=config_dict,
-                      user_incar_settings=incar_enforce)
+                      user_incar_settings=incar_enforce,
+                      sort_structure=False)
 
         vis.incar.write_file("INCAR")
         vis.poscar.write_file("POSCAR")
