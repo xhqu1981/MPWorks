@@ -35,8 +35,9 @@ CS:
 
 EFG:
   INCAR:
-    EDIFF: -1.0e-06
-    ENCUT_ENHANCE_RATIO: 0.2
+    EDIFF: -1.0e-10
+    ENCUT_ENHANCE_RATIO: 0.4
+    ICHIBARE: 1
     ISMEAR: -5
     ISTART: 0
     ISYM: 0
@@ -128,19 +129,19 @@ EFG:
         Hg-201: 387.6
       Ra:
         Ra-223: 1210.3
-    SIGMA: 0.05
+    SIGMA: 0.01
   KPOINTS:
-    length: 24
+    length: 32
   POTCAR:
-    C: C
-    H: H
+    C: C_h
+    H: H_h
     Mg: Mg_sv
-    O: O
+    O: O_h
     Na: Na_sv
     Al: Al
     Si: Si
-    P: P
-    Cl: Cl
+    P: P_h
+    Cl: Cl_h
     K: K_pv
     Ca: Ca_pv
     Y: Y_sv
