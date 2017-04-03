@@ -235,13 +235,23 @@ class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
 class DictVaspSetupTask(FireTaskBase, FWSerializable):
     _fw_name = "Dict Vasp Input Setup Task"
 
+    @staticmethod
+    def _sort_structure_by_encut(structure, config_dict):
+        # put the larger ENMAX specie first
+        trial_vis = DictSet(structure, config_dict=config_dict)
+        trial_potcar = trial_vis.potcar
+        enmax_dict = {p.symbol.split("_")[0]: p.keywords["ENMAX"] for p in trial_potcar}
+        structure = structure.get_sorted_structure(key=lambda site: enmax_dict[site.specie.symbol], reverse=True)
+        return structure
+
     def run_task(self, fw_spec):
         config_dict = fw_spec["input_set_config_dict"]
         incar_enforce = fw_spec["input_set_incar_enforce"]
         mpsnl = fw_spec["mpsnl"]
-        structure = mpsnl.structure
+        structure = self._sort_structure_by_encut(mpsnl.structure, config_dict)
         vis = DictSet(structure, config_dict=config_dict,
-                      user_incar_settings=incar_enforce)
+                      user_incar_settings=incar_enforce,
+                      sort_structure=False)
 
         vis.incar.write_file("INCAR")
         vis.poscar.write_file("POSCAR")
