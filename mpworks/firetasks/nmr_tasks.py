@@ -240,7 +240,8 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         # put the larger ENMAX specie first
         trial_vis = DictSet(structure, config_dict=config_dict)
         trial_potcar = trial_vis.potcar
-        enmax_dict = {p.symbol.split("_")[0]: p.keywords["ENMAX"] for p in trial_potcar}
+        enmax_dict = {p.symbol.split("_")[0]: p.keywords["ENMAX"] + p.keywords["ENMIN"] * 1.0E-3
+                      for p in trial_potcar}
         structure = structure.get_sorted_structure(key=lambda site: enmax_dict[site.specie.symbol], reverse=True)
         return structure
 
