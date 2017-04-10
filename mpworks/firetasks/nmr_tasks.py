@@ -97,7 +97,7 @@ def _change_garden_setting():
 
 
 def _assign_potcar_valence(structure, potcar_dict):
-    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb_3", "Tm_3"}
+    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb", "Tm"}
     di_val_elements = {"Er", "Eu", "Yb"}
     st_elements = set([specie.symbol for specie in structure.species])
     bva = BVAnalyzer()
