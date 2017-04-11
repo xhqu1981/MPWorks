@@ -35,7 +35,6 @@ CS:
 
 EFG:
   INCAR:
-    ADDGRID: true
     ALGO: FAST
     EDIFF: -1.0e-10
     ENCUT_ENHANCE_RATIO: 0.4
