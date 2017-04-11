@@ -63,10 +63,10 @@ STEP2:
     O: O_h
     Na: Na_sv
     Al: Al
-    Si: Si
+    Si: Si_h
     P: P_h
     Cl: Cl_h
-    K: K_pv
+    K: K_sv
     Ca: Ca_pv
     Y: Y_sv
     Gd: Gd
@@ -105,10 +105,10 @@ STEP3:
     O: O_h
     Na: Na_sv
     Al: Al
-    Si: Si
+    Si: Si_h
     P: P_h
     Cl: Cl_h
-    K: K_pv
+    K: K_sv
     Ca: Ca_pv
     Y: Y_sv
     Gd: Gd
