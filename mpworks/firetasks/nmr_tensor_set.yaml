@@ -29,7 +29,7 @@ CS:
     P: P_h
     Cl: Cl_h
     K: K_sv
-    Ca: Ca_pv
+    Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
 
@@ -144,6 +144,6 @@ EFG:
     P: P_h
     Cl: Cl_h
     K: K_sv
-    Ca: Ca_pv
+    Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
