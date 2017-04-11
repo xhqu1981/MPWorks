@@ -1,7 +1,5 @@
 CS:
   INCAR:
-    ADDGRID: true
-    ALGO: FAST
     DQ: 0.001
     EDIFF: -1.0e-10
     ENCUT_ENHANCE_RATIO: 0.4
