@@ -97,7 +97,7 @@ def _change_garden_setting():
 
 
 def _assign_potcar_valence(structure, potcar_dict):
-    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb_3", "Tm_3"}
+    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb", "Tm"}
     di_val_elements = {"Er", "Eu", "Yb"}
     st_elements = set([specie.symbol for specie in structure.species])
     bva = BVAnalyzer()
@@ -240,7 +240,8 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         # put the larger ENMAX specie first
         trial_vis = DictSet(structure, config_dict=config_dict)
         trial_potcar = trial_vis.potcar
-        enmax_dict = {p.symbol.split("_")[0]: p.keywords["ENMAX"] for p in trial_potcar}
+        enmax_dict = {p.symbol.split("_")[0]: p.keywords["ENMAX"] + p.keywords["ENMIN"] * 1.0E-3
+                      for p in trial_potcar}
         structure = structure.get_sorted_structure(key=lambda site: enmax_dict[site.specie.symbol], reverse=True)
         return structure
 

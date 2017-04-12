@@ -2,7 +2,7 @@ CS:
   INCAR:
     DQ: 0.001
     EDIFF: -1.0e-10
-    ENCUT_ENHANCE_RATIO: 0.4
+    ENCUT_ENHANCE_RATIO: 0.3
     ICHIBARE: 1
     ISMEAR: -5
     ISTART: 0
@@ -12,7 +12,7 @@ CS:
     LNMR_SYM_RED: true
     LREAL: AUTO
     LWAVE: false
-    NELMIN: 5
+    NELMIN: 10
     NSLPLINE: true
     PREC: ACCURATE
     SIGMA: 0.01
@@ -25,18 +25,20 @@ CS:
     O: O_h
     Na: Na_sv
     Al: Al
-    Si: Si
+    Si: Si_h
     P: P_h
     Cl: Cl_h
-    K: K_pv
-    Ca: Ca_pv
+    K: K_sv
+    Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
 
 EFG:
   INCAR:
+    ALGO: FAST
     EDIFF: -1.0e-10
-    ENCUT_ENHANCE_RATIO: 0.4
+    ENCUT_ENHANCE_RATIO: 0.3
+    ICHIBARE: 1
     ISMEAR: -5
     ISTART: 0
     ISYM: 0
@@ -44,7 +46,7 @@ EFG:
     LEFG: true
     LREAL: AUTO
     LWAVE: false
-    NELMIN: 5
+    NELMIN: 10
     PREC: ACCURATE
     QUAD_EFG_MAP:
       H:
@@ -138,10 +140,10 @@ EFG:
     O: O_h
     Na: Na_sv
     Al: Al
-    Si: Si
+    Si: Si_h
     P: P_h
     Cl: Cl_h
-    K: K_pv
-    Ca: Ca_pv
+    K: K_sv
+    Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
