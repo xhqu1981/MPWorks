@@ -38,7 +38,6 @@ EFG:
     ALGO: FAST
     EDIFF: -1.0e-10
     ENCUT_ENHANCE_RATIO: 0.3
-    ICHIBARE: 1
     ISMEAR: -5
     ISTART: 0
     ISYM: 0
