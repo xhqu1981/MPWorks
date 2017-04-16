@@ -303,7 +303,12 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 def get_custodian_task(spec):
     task_type = spec['task_type']
     v_exe = 'VASP_EXE'  # will be transformed to vasp executable on the node
-    handlers = [VaspErrorHandler(), FrozenJobErrorHandler(),
+    if {'NMR EFG', 'NMR CS', 'Triple Jump Relax S1',
+        'Triple Jump Relax S2', 'Triple Jump Relax S3'} & {task_type}:
+        handlers = [VaspErrorHandler(natoms_large_cell=50)]
+    else:
+        handlers = [VaspErrorHandler()]
+    handlers += [FrozenJobErrorHandler(),
                 MeshSymmetryErrorHandler(), NonConvergingErrorHandler(), PositiveEnergyErrorHandler()]
 
     if 'optimize structure (2x)' in task_type:
