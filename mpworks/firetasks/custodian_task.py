@@ -199,16 +199,16 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                                     for f in glob("{}.*.tar.gz".format(binary_file_prefix))])
             binary_filename = "{}.{}.tar.gz".format(binary_file_prefix, binary_num + 1)
 
-            for fname in ["OSZICAR", "vasp.out", "std_err.txt"]:
-                # remove old file before starting new calculations to
-                # avoid confuse custodian
-                if os.path.exists(fname):
-                    os.remove(fname)
-
             with tarfile.open(binary_filename, "w:gz") as tar:
                 for fname in ["custodian.json", error_filename, "CONTCAR"]:
                     for f in glob(fname):
                         tar.add(f)
+
+            for fname in ["OSZICAR", "vasp.out", "std_err.txt", "custodian.json"]:
+                # remove old file before starting new calculations to
+                # avoid confuse custodian
+                if os.path.exists(fname):
+                    os.remove(fname)
 
             if input_rewind:
                 # rewind the input to every beginning
