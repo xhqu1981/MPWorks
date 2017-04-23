@@ -16,6 +16,7 @@ from custodian.custodian import Custodian, CustodianError
 from custodian.vasp.jobs import VaspJob
 import shlex
 import os
+import copy
 from fireworks.utilities.fw_utilities import get_slug
 from mpworks.workflows.wf_utils import j_decorate, ScancelJobStepTerminator
 from pymatgen.io.vasp.inputs import Incar
@@ -243,7 +244,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
     def _run_custodian(self, terminate_func):
         dec = MontyDecoder()
-        handlers = list(map(dec.process_decoded, self['handlers']))
+        h_dict = copy.deepcopy(self['handlers'])
+        handlers = list(map(dec.process_decoded, h_dict))
         c = Custodian(handlers, self.jobs, max_errors=self.max_errors, gzipped_output=False,
                       validators=[VasprunXMLValidator()],
                       terminate_func=terminate_func)  # manual gzip
