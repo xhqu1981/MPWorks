@@ -8,7 +8,7 @@ import shutil
 from fireworks.fw_config import FWData
 from monty.os.path import which
 from custodian.vasp.handlers import VaspErrorHandler, NonConvergingErrorHandler, \
-    FrozenJobErrorHandler, MeshSymmetryErrorHandler, PositiveEnergyErrorHandler
+    FrozenJobErrorHandler, MeshSymmetryErrorHandler, PositiveEnergyErrorHandler, StdErrHandler
 from custodian.vasp.validators import VasprunXMLValidator
 from fireworks.core.firework import FireTaskBase, FWAction
 from fireworks.utilities.fw_serializers import FWSerializable
@@ -320,6 +320,9 @@ def get_custodian_task(spec):
         # non-SCF runs
         jobs = [VaspJob(v_exe)]
         handlers = []
+
+    if task_type == 'NMR CS':
+        handlers += [StdErrHandler(output_filename="std_err.txt")]
 
     params = {'jobs': [j_decorate(j.as_dict()) for j in jobs],
               'handlers': [h.as_dict() for h in handlers], 'max_errors': 5}
