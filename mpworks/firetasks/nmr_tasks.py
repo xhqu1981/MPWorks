@@ -140,7 +140,10 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     if config_name == "NMR CS":
         incar_enforce = {'KPAR': 4}
     else:
-        incar_enforce = {'NPAR': 4}
+        if len(structure) < 64:
+            incar_enforce = {'NPAR': 4}
+        else:
+            incar_enforce = {'NPAR': 8}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
     _assign_potcar_valence(structure, config_dict["POTCAR"])
