@@ -137,13 +137,14 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     with open(config_file) as f:
         parent_config_dict = yaml.load(stream=f)
     config_dict = parent_config_dict[config_key]
-    if config_name == "NMR CS":
-        incar_enforce = {'KPAR': 4}
+    if len(structure) < 64:
+        par_num = 4
     else:
-        if len(structure) < 64:
-            incar_enforce = {'NPAR': 4}
-        else:
-            incar_enforce = {'NPAR': 8}
+        par_num = 8
+    if config_name == "NMR CS":
+        incar_enforce = {'KPAR': par_num}
+    else:
+        incar_enforce = {'NPAR': par_num}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
     _assign_potcar_valence(structure, config_dict["POTCAR"])
