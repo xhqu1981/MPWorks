@@ -200,7 +200,7 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
             with tarfile.open(binary_filename, "w:gz") as tar:
                 for fname in ["custodian.json", error_filename, "CONTCAR", "OUTCAR",
-                              "vasp.out", "std_err.txt"]:
+                              "vasp.out", "std_err.txt", "INCAR", "POSCAR", "KPOINTS"]:
                     for f in glob(fname):
                         tar.add(f)
 
