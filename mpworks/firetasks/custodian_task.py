@@ -153,11 +153,11 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                     error_list.extend(all_errors)
                 except Exception as ex:
                     cus_ex = ex
-        dynamic_wfs = None
+        dynamic_wf = None
         if cus_ex is not None:
             if self._is_kpts_parallel_chemical_shift_eligible(fw_spec):
                 from mpworks.firetasks.nmr_tasks import chemical_shift_spec_to_dynamic_kpt_average_wfs
-                dynamic_wfs = chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec)
+                dynamic_wf = chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec)
             else:
                 raise cus_ex
 
@@ -178,11 +178,11 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'parameters': fw_spec.get('parameters')}
         if 'functional' in fw_spec:
             update_spec['functional'] = fw_spec['functional']
-        if dynamic_wfs is None:
+        if dynamic_wf is None:
             return FWAction(stored_data=stored_data, update_spec=update_spec)
         else:
             return FWAction(stored_data=stored_data, update_spec=update_spec,
-                            detours=dynamic_wfs)
+                            detours=dynamic_wf)
 
     def _is_kpts_parallel_chemical_shift_eligible(self, fw_spec):
         if fw_spec['task_type'] == "NMR CS":

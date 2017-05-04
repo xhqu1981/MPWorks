@@ -6,7 +6,7 @@ import os
 import shutil
 import yaml
 from fireworks import FireTaskBase
-from fireworks.core.firework import FWAction, Firework
+from fireworks.core.firework import FWAction, Firework, Workflow
 from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import get_slug
 from monty.os.path import zpath
@@ -207,15 +207,16 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     scf_spec['input_set_incar_enforce'] = {"NPAR": fw_spec['input_set_incar_enforce']["KPAR"]}
     scf_spec['task_type'] = 'Pre Kpt CS SCF'
     scf_spec['vaspinputset_name'] = scf_spec['task_type'] + " DictSet"
-    tasks = [DictVaspSetupTask()]
+    scf_tasks = [DictVaspSetupTask()]
     functional = scf_spec["functional"]
     if functional != "PBE":
-        tasks.append(ScanFunctionalSetupTask())
+        scf_tasks.append(ScanFunctionalSetupTask())
     from mpworks.firetasks.custodian_task import get_custodian_task
-    tasks.append(get_custodian_task(no_jobs_spec))
+    scf_tasks.append(get_custodian_task(no_jobs_spec))
+    scf_tasks.append(TagFileChecksumTask(["CHGCAR"]))
     scf_vasp_fwid = cur_fwid  # Links
     cur_fwid -= 1
-    vasp_fw = Firework(tasks, scf_spec, name=get_slug(nick_name + '--' + scf_spec['task_type']),
+    vasp_fw = Firework(scf_tasks, scf_spec, name=get_slug(nick_name + '--' + scf_spec['task_type']),
                        fw_id=scf_vasp_fwid)
     fws.append(vasp_fw)
 
@@ -227,11 +228,23 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
                           priority=priority, task_class=scf_db_type_class)
     fws.append(scf_db_fw)
 
-    # Single Kpt CS
-    kpt_cs_base_spec = copy.deepcopy(no_jobs_spec)
-    kpt_cs_base_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
-    kpt_cs_base_spec['task_type'] = 'Single Kpt CS'
-    kpt_cs_base_spec['vaspinputset_name'] = kpt_cs_base_spec['task_type'] + " DictSet"
+    # Single Kpt CS Generation
+    gen_spec = copy.deepcopy(no_jobs_spec)
+    gen_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
+    gen_spec['input_set_config_dict']['INCAR']['ICHARG'] = 11
+    gen_spec['task_type'] = 'Single Kpt CS Generation'
+    gen_spec['vaspinputset_name'] = gen_spec['task_type'] + " DictSet"
+    gen_tasks = [ChemicalShiftKptsAverageGenerationTask()]
+    gen_fwid = cur_fwid  # Links
+    cur_fwid -= 1
+    gen_fw = Firework(gen_tasks, gen_spec,
+                      name=get_slug(nick_name + '--' + gen_spec['task_type']),
+                      fw_id=gen_fwid)
+    fws.append(gen_fw)
+    connections = {scf_vasp_fwid: scf_db_fwid,
+                   scf_db_fwid: gen_fwid}
+    wf = Workflow(fws, connections)
+    return wf
 
 
 class NmrVaspToDBTask(VaspToDBTask):
