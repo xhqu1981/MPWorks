@@ -5,8 +5,9 @@ import os
 import shutil
 import yaml
 from fireworks import FireTaskBase
-from fireworks.core.firework import FWAction
+from fireworks.core.firework import FWAction, Firework
 from fireworks.utilities.fw_serializers import FWSerializable
+from fireworks.utilities.fw_utilities import get_slug
 from monty.os.path import zpath
 from pymatgen.analysis.bond_valence import BVAnalyzer
 from pymatgen.io.vasp import Outcar
@@ -180,7 +181,57 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     return spec
 
 def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
-    pass
+    no_jobs_spec = copy.deepcopy(fw_spec)
+    no_jobs_spec.pop('jobs', None)
+    no_jobs_spec.pop('handlers', None)
+    no_jobs_spec.pop('max_errors', None)
+    no_jobs_spec.pop('_tasks', None)
+    no_jobs_spec.pop('custodian_default_input_set', None)
+    no_jobs_spec.pop('prev_task_type', None)
+    no_jobs_spec.pop('task_type', None)
+    no_jobs_spec.pop('vaspinputset_name', None)
+    nick_name = no_jobs_spec['parameters']['nick_name']
+    priority = no_jobs_spec['_priority']
+
+
+    cur_fwid = -1
+    fws = []
+
+    # Pre Single Kpt CS SCF Task
+    scf_spec = copy.deepcopy(no_jobs_spec)
+    for k in ["DQ", "ICHIBARE", "LCHIMAG", "LNMR_SYM_RED", "NSLPLINE"]:
+        scf_spec['input_set_config_dict']['INCAR'].pop(k, None)
+    scf_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
+    scf_spec['input_set_config_dict']['INCAR']['LCHARG'] = True
+    scf_spec['input_set_incar_enforce'] = {"NPAR": fw_spec['input_set_incar_enforce']["KPAR"]}
+    scf_spec['task_type'] = 'Pre Kpt CS SCF'
+    scf_spec['vaspinputset_name'] = scf_spec['task_type'] + " DictSet"
+    tasks = [DictVaspSetupTask()]
+    functional = scf_spec["functional"]
+    if functional != "PBE":
+        tasks.append(ScanFunctionalSetupTask())
+    from mpworks.firetasks.custodian_task import get_custodian_task
+    tasks.append(get_custodian_task(no_jobs_spec))
+    scf_vasp_fwid = cur_fwid  # Links
+    cur_fwid -= 1
+    vasp_fw = Firework(tasks, scf_spec, name=get_slug(nick_name + '--' + scf_spec['task_type']),
+                       fw_id=scf_vasp_fwid)
+    fws.append(vasp_fw)
+
+    scf_db_fwid = cur_fwid  # Links
+    cur_fwid -= 1
+    scf_db_type_class = VaspToDBTask
+    from mpworks.workflows.snl_to_wf_nmr import get_nmr_db_fw
+    scf_db_fw = get_nmr_db_fw(nick_name=nick_name, fwid=scf_db_fwid, prev_task_type=scf_spec['task_type'],
+                          priority=priority, task_class=scf_db_type_class)
+    fws.append(scf_db_fw)
+
+    # Single Kpt CS
+    kpt_cs_base_spec = copy.deepcopy(no_jobs_spec)
+    kpt_cs_base_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
+    kpt_cs_base_spec['task_type'] = 'Single Kpt CS'
+    kpt_cs_base_spec['vaspinputset_name'] = kpt_cs_base_spec['task_type'] + " DictSet"
+
 
 class NmrVaspToDBTask(VaspToDBTask):
     _fw_name = "NMR Tensor to Database Task"
