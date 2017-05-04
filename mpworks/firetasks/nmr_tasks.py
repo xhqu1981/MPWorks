@@ -1,4 +1,5 @@
 import copy
+import hashlib
 import json
 import os
 
@@ -10,7 +11,7 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import get_slug
 from monty.os.path import zpath
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.io.vasp import Outcar
+from pymatgen.io.vasp import Outcar, zopen
 from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
@@ -352,3 +353,67 @@ class ScanFunctionalSetupTask(FireTaskBase, FWSerializable):
                                  "should be modified".format(my_name))
         else:
             pass
+
+
+class ChemicalShiftKptsAverageGenerationTask(FireTaskBase, FWSerializable):
+    """
+    This class is to spawn the dynamical fws to calculate NMR chemical shfit on each 
+    individual and then do K-points weighted average manually.
+    """
+    _fw_name = "Chemical Shift K-Points Average Generation Task"
+
+    def run_task(self, fw_spec):
+        pass
+
+class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
+    """
+    This class do K-points weighted chemical shift average from the previous K-points
+    specific calculations.
+    """
+    _fw_name = "Chemical Shift K-Points Average Collect Task"
+
+    def run_task(self, fw_spec):
+        pass
+
+
+class TagFileChecksumTask(FireTaskBase, FWSerializable):
+
+    _fw_name = "Chemical Shift K-Points Average Generation Task"
+
+    def __init__(self, files=None):
+        if files is None:
+            files = ["POSCAR", "CHGCAR", "POTCAR"]
+        self.files = files
+
+    def run_task(self, fw_spec):
+        file_checksums = dict()
+        blocksize = 10 * 2 ** 20 # 10 MB
+        for fn in self.files:
+            with zopen(zpath('FW.json'), 'rb') as f:
+                hash = hashlib.sha224
+                for block in iter(lambda: f.read(blocksize), b""):
+                    hash.update(block)
+                checksum = hash.hexdigest()
+                file_checksums[fn] = {"type": "sha224",
+                                      "value": checksum}
+        stored_data = {"file_chechsum": file_checksums}
+        return FWAction(stored_data=stored_data)
+
+
+class DeleteFileTask(FireTaskBase, FWSerializable):
+
+    _fw_name = "Delete File Task"
+
+    def __init__(self, files=None):
+        if files is None:
+            files = ["CHGCAR", "WAVCAR"]
+        self.files = files
+
+    def run_task(self, fw_spec):
+        for fn in self.files:
+            gzfn = fn + ".gz"
+            if os.path.exists(fn):
+                os.remove(fn)
+            if os.path.exists(gzfn):
+                os.remove(gzfn)
+
