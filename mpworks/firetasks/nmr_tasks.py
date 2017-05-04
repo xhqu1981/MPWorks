@@ -11,11 +11,11 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import get_slug
 from monty.os.path import zpath
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.io.vasp import Outcar, zopen
+from pymatgen.io.vasp import Outcar, zopen, Kpoints
 from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
-from mpworks.firetasks.vasp_io_tasks import VaspToDBTask
+from mpworks.firetasks.vasp_io_tasks import VaspToDBTask, VaspCopyTask
 from mpworks.firetasks.vasp_setup_tasks import SetupUnconvergedHandlerTask
 from mpworks.workflows.wf_settings import WFSettings
 from mpworks.workflows.wf_utils import get_loc
@@ -215,7 +215,7 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
         scf_tasks.append(ScanFunctionalSetupTask())
     from mpworks.firetasks.custodian_task import get_custodian_task
     scf_tasks.append(get_custodian_task(scf_spec))
-    scf_tasks.append(TagFileChecksumTask(["CHGCAR"]))
+    scf_tasks.append(TagFileChecksumTask({"files": ["CHGCAR"]}))
     scf_vasp_fwid = cur_fwid
     cur_fwid -= 1
     vasp_fw = Firework(scf_tasks, scf_spec, name=get_slug(nick_name + '--' + scf_spec['task_type']),
@@ -261,10 +261,20 @@ class NmrVaspToDBTask(VaspToDBTask):
         outcar = Outcar(zpath(os.path.join(prev_dir, "OUTCAR")))
         prev_task_type = fw_spec['prev_task_type']
         nmr_fields = dict()
+        update_spec = None
         if prev_task_type == "NMR CS":
             outcar.read_chemical_shifts()
             cs_fiels = {"chemical_shifts": [x.as_dict() for x in outcar.data["chemical_shifts"]["valence_only"]]}
             nmr_fields.update(cs_fiels)
+        elif prev_task_type == "Single Kpt CS":
+            update_spec = dict()
+            update_spec["total_kpts"] = fw_spec['total_kpts']
+            update_spec['scf_vasp_dir'] = fw_spec['scf_vasp_dir']
+            cs_kpt_name = fw_spec['kpoint_tag']
+            update_spec[cs_kpt_name] = dict()
+            update_spec[cs_kpt_name]["kpt_vasp_dir"] = prev_dir
+            outcar.read_chemical_shifts()
+            update_spec[cs_kpt_name]["chemical_shifts"] = outcar.data["chemical_shifts"]
         elif prev_task_type == "NMR EFG":
             outcar.read_nmr_efg()
             efg_fields = {"efg": outcar.data["efg"]}
@@ -272,7 +282,11 @@ class NmrVaspToDBTask(VaspToDBTask):
         else:
             raise ValueError("Unsupported Task Type: \"{}\"".format(prev_task_type))
         self.additional_fields.update(nmr_fields)
-        return super(NmrVaspToDBTask, self).run_task(fw_spec)
+        m_action = super(NmrVaspToDBTask, self).run_task(fw_spec)
+        if update_spec is not None:
+            update_spec.update(m_action.update_spec)
+            m_action.update_spec = update_spec
+        return m_action
 
 
 class TripleJumpRelaxVaspToDBTask(VaspToDBTask):
@@ -308,6 +322,12 @@ class SetupTripleJumpRelaxS3UnconvergedHandlerTask(SetupUnconvergedHandlerTask):
 class DictVaspSetupTask(FireTaskBase, FWSerializable):
     _fw_name = "Dict Vasp Input Setup Task"
 
+    def __init__(self, parameters=None):
+        parameters = parameters if parameters else {}
+        default_files = ["INCAR", "POSCAR", "POTCAR", "KPOINTS"]
+        self.update(parameters)
+        self.files = parameters.get("files", default_files)
+
     @staticmethod
     def _sort_structure_by_encut(structure, config_dict):
         # put the larger ENMAX specie first
@@ -326,11 +346,17 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         vis = DictSet(structure, config_dict=config_dict,
                       user_incar_settings=incar_enforce,
                       sort_structure=False)
-
-        vis.incar.write_file("INCAR")
-        vis.poscar.write_file("POSCAR")
-        vis.potcar.write_file("POTCAR")
-        vis.kpoints.write_file("KPOINTS")
+        if "INCAR" in self.files:
+            vis.incar.write_file("INCAR")
+        if "POSCAR" in self.files:
+            vis.poscar.write_file("POSCAR")
+        if "POTCAR" in self.files:
+            vis.potcar.write_file("POTCAR")
+        if "KOINTS" in self.files:
+            if "kpoints_enforce" not in fw_spec:
+                vis.kpoints.write_file("KPOINTS")
+            else:
+                fw_spec["kpoints_enforce"].write_file("KPOINTS")
         return FWAction(stored_data={"vasp_input_set": vis.as_dict()})
 
 
@@ -378,7 +404,100 @@ class ChemicalShiftKptsAverageGenerationTask(FireTaskBase, FWSerializable):
     _fw_name = "Chemical Shift K-Points Average Generation Task"
 
     def run_task(self, fw_spec):
-        pass
+        no_jobs_spec = copy.deepcopy(fw_spec)
+        no_jobs_spec.pop('jobs', None)
+        no_jobs_spec.pop('handlers', None)
+        no_jobs_spec.pop('max_errors', None)
+        no_jobs_spec.pop('_tasks', None)
+        no_jobs_spec.pop('custodian_default_input_set', None)
+        no_jobs_spec.pop('task_type', None)
+        no_jobs_spec.pop('vaspinputset_name', None)
+        nick_name = no_jobs_spec['parameters']['nick_name']
+        priority = no_jobs_spec['_priority']
+        no_jobs_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
+        no_jobs_spec['input_set_config_dict']['INCAR']['LCHARG'] = True
+        no_jobs_spec['task_type'] = 'Single Kpt CS'
+        no_jobs_spec['vaspinputset_name'] = no_jobs_spec['task_type'] + " DictSet"
+        no_jobs_spec["scf_vasp_dir"] = fw_spec['prev_vasp_dir']
+
+        fws = []
+        connections = dict()
+        db_fwids = []
+        cur_fwid = -1
+        prev_dir = fw_spec['prev_vasp_dir']
+        scf_kpoint_filename = zpath(os.path.join(prev_dir, 'IBZKPT'))
+        whole_kpts = Kpoints.from_file(scf_kpoint_filename)
+        no_jobs_spec['total_kpts'] = len(whole_kpts.kpts)
+
+        for (i, kpt) in enumerate(whole_kpts.kpts):
+            kweight = int(whole_kpts.kpts_weights[i])
+            task_tag = "kpt_#{:d}_weight_{:d}".format(i + 1, kweight)
+            comment = "Individual {}th Kpoint for CS Calculation".format(i + 1)
+            cur_kpoints = Kpoints(comment=comment, num_kpts=1,
+                                  style=Kpoints.supported_modes.Reciprocal,
+                                  kpts=[kpt], kpts_weights=[1],
+                                  tet_number=0)
+
+            # Individual K-Point Chemical Shift VASP
+            kpt_cs_spec = copy.deepcopy(no_jobs_spec)
+            kpt_cs_spec['run_tags'].append(task_tag)
+            kpt_cs_spec['kpoints_enforce'] = cur_kpoints
+            kpt_cs_spec["kpoint_tag"] = task_tag
+
+            kpt_cs_tasks = [DictVaspSetupTask({'files': ['INCAR', "KPOINTS"]}),
+                            VaspCopyTask({'files': ['CHGCAR', "POTCAR"],
+                                          'use_CONTCAR': True,
+                                          'keep_velocities': False})]
+            functional = kpt_cs_spec["functional"]
+            if functional != "PBE":
+                kpt_cs_tasks.append(ScanFunctionalSetupTask())
+            kpt_cs_tasks.append(TagFileChecksumTask({"files": ["CHGCAR"]}))
+            from mpworks.firetasks.custodian_task import get_custodian_task
+            kpt_cs_tasks.append(get_custodian_task(kpt_cs_spec))
+            kpt_cs_tasks.append(DeleteFileTask({"files": ["CHGCAR"]}))
+            kpt_cs_task_name = get_slug(nick_name + '--' + kpt_cs_spec['task_type'] + "--#{}".format(i))
+            kpt_cs_vasp_fwid = cur_fwid  # Links
+            cur_fwid -= 1
+            vasp_fw = Firework(kpt_cs_tasks, kpt_cs_spec, name=kpt_cs_task_name,
+                               fw_id=kpt_cs_vasp_fwid)
+            fws.append(vasp_fw)
+
+            # Individual K-Point Chemical Shift VASP DB Insertion
+            kpt_cs_db_fwid = cur_fwid  # Links
+            cur_fwid -= 1
+            kpt_cs_db_type_class = NmrVaspToDBTask
+            from mpworks.workflows.snl_to_wf_nmr import get_nmr_db_fw
+            kpt_cs_db_fw = get_nmr_db_fw(nick_name=nick_name, fwid=kpt_cs_db_fwid,
+                                      prev_task_type=kpt_cs_spec['task_type'],
+                                      priority=priority, task_class=kpt_cs_db_type_class)
+            fws.append(kpt_cs_db_fw)
+            connections[kpt_cs_vasp_fwid] = kpt_cs_db_fwid
+            db_fwids.append(kpt_cs_db_fwid)
+
+        collect_fwid = cur_fwid  # Links
+        cur_fwid -= 1
+        # K-Points Average Collect
+        collect_spec = copy.deepcopy(no_jobs_spec)
+        collect_spec['task_type'] = 'Single Kpt CS Collect'
+        collect_spec['vaspinputset_name'] = collect_spec['task_type'] + " DictSet"
+        collect_tasks = [ChemicalShiftKptsAverageCollectTask()]
+        collect_fwid = cur_fwid
+        cur_fwid -= 1
+        collect_fw = Firework(collect_tasks, collect_spec,
+                              name=get_slug(nick_name + '--' + collect_spec['task_type']),
+                              fw_id=collect_fwid)
+        fws.append(collect_fw)
+        for dbid in db_fwids:
+            connections[dbid] = collect_fwid
+        wf = Workflow(fws, connections)
+        update_spec = {'total_kpts': no_jobs_spec['total_kpts'],
+                       "scf_vasp_dir": fw_spec['prev_vasp_dir'],
+                       'prev_vasp_dir': fw_spec['prev_vasp_dir'],
+                       'prev_task_type': fw_spec['task_type']}
+        stored_data = {'total_kpts': no_jobs_spec['total_kpts'],
+                       "scf_vasp_dir": fw_spec['prev_vasp_dir']}
+        return FWAction(update_spec=update_spec, stored_data=stored_data,
+                        detours=wf)
 
 class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
     """
@@ -395,10 +514,11 @@ class TagFileChecksumTask(FireTaskBase, FWSerializable):
 
     _fw_name = "Tag File Checksum Task"
 
-    def __init__(self, files=None):
-        if files is None:
-            files = ["POSCAR", "CHGCAR", "POTCAR"]
-        self.files = files
+    def __init__(self, parameters=None):
+        parameters = parameters if parameters else {}
+        default_files = ["CHGCAR", "WAVCAR"]
+        self.update(parameters)
+        self.files = parameters.get("files", default_files)
 
     def run_task(self, fw_spec):
         file_checksums = dict()
@@ -421,10 +541,11 @@ class DeleteFileTask(FireTaskBase, FWSerializable):
 
     _fw_name = "Delete File Task"
 
-    def __init__(self, files=None):
-        if files is None:
-            files = ["CHGCAR", "WAVCAR"]
-        self.files = files
+    def __init__(self, parameters=None):
+        parameters = parameters if parameters else {}
+        default_files = ["CHGCAR", "WAVCAR"]
+        self.update(parameters)
+        self.files = parameters.get("files", default_files)
 
     def run_task(self, fw_spec):
         for fn in self.files:

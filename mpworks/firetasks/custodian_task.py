@@ -176,8 +176,9 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'snlgroup_id': fw_spec['snlgroup_id'],
                        'run_tags': fw_spec['run_tags'],
                        'parameters': fw_spec.get('parameters')}
-        if 'functional' in fw_spec:
-            update_spec['functional'] = fw_spec['functional']
+        for k in ['kpoint_tag', 'scf_vasp_dir', 'functional', 'total_kpts']:
+            update_spec[k] = fw_spec[k]
+
         if dynamic_wf is None:
             return FWAction(stored_data=stored_data, update_spec=update_spec)
         else:
@@ -338,7 +339,8 @@ def get_custodian_task(spec):
     if 'optimize structure (2x)' in task_type:
         jobs = VaspJob.double_relaxation_run(v_exe)
     elif {'static', 'deformed', 'NMR EFG', 'NMR CS', 'Triple Jump Relax S1',
-          'Triple Jump Relax S2', 'Triple Jump Relax S3'} & {task_type}:
+          'Triple Jump Relax S2', 'Triple Jump Relax S3', 'Pre Kpt CS SCF',
+          'Single Kpt CS'} & {task_type}:
         jobs = [VaspJob(v_exe)]
     else:
         # non-SCF runs
