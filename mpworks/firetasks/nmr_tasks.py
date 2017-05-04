@@ -179,6 +179,8 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
 
     return spec
 
+def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
+    pass
 
 class NmrVaspToDBTask(VaspToDBTask):
     _fw_name = "NMR Tensor to Database Task"

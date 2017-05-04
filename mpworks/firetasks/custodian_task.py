@@ -142,14 +142,22 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
         if cus_ex is not None:
             if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
                 cus_ex = None
-                logging.info("Initiate VASP calculations using alternate binaries")
-                all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
-                                                    fw_env.get("vasp_cmd", "vasp"),
-                                                    fw_env.get("gvasp_cmd", "gvasp"),
-                                                    fw_env["alt_cmds"][fw_spec['task_type']],
-                                                    fw_env.get("input_rewind", True),
-                                                    fw_spec['mpsnl'].structure)
-                error_list.extend(all_errors)
+                try:
+                    logging.info("Initiate VASP calculations using alternate binaries")
+                    all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
+                                                        fw_env.get("vasp_cmd", "vasp"),
+                                                        fw_env.get("gvasp_cmd", "gvasp"),
+                                                        fw_env["alt_cmds"][fw_spec['task_type']],
+                                                        fw_env.get("input_rewind", True),
+                                                        fw_spec['mpsnl'].structure)
+                    error_list.extend(all_errors)
+                except Exception as ex:
+                    cus_ex = ex
+        dynamic_wfs = None
+        if cus_ex is not None:
+            if self._is_kpts_parallel_chemical_shift_eligible(fw_spec):
+                from mpworks.firetasks.nmr_tasks import chemical_shift_spec_to_dynamic_kpt_average_wfs
+                dynamic_wfs = chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec)
             else:
                 raise cus_ex
 
@@ -170,8 +178,20 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'parameters': fw_spec.get('parameters')}
         if 'functional' in fw_spec:
             update_spec['functional'] = fw_spec['functional']
+        if dynamic_wfs is None:
+            return FWAction(stored_data=stored_data, update_spec=update_spec)
+        else:
+            return FWAction(stored_data=stored_data, update_spec=update_spec,
+                            detours=dynamic_wfs)
 
-        return FWAction(stored_data=stored_data, update_spec=update_spec)
+    def _is_kpts_parallel_chemical_shift_eligible(self, fw_spec):
+        if fw_spec['task_type'] == "NMR CS":
+            eh = StdErrHandler(output_filename="std_err.txt")
+            errors = eh.check()["errors"]
+            if set(errors) & {'out_of_memory', 'seg_fault'}:
+                return True
+        return False
+
 
     def _run_alt_vasp_cmd(self, terminate_func, v_exe, gv_exe, vasp_cmd,
                           gvasp_cmd, alt_cmds, input_rewind, structure):
@@ -313,7 +333,7 @@ def get_custodian_task(spec):
     else:
         handlers = [VaspErrorHandler()]
     handlers += [FrozenJobErrorHandler(),
-                MeshSymmetryErrorHandler(), NonConvergingErrorHandler(), PositiveEnergyErrorHandler()]
+                 MeshSymmetryErrorHandler(), NonConvergingErrorHandler(), PositiveEnergyErrorHandler()]
 
     if 'optimize structure (2x)' in task_type:
         jobs = VaspJob.double_relaxation_run(v_exe)
