@@ -194,7 +194,6 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     nick_name = no_jobs_spec['parameters']['nick_name']
     priority = no_jobs_spec['_priority']
 
-
     cur_fwid = -1
     fws = []
 
@@ -212,15 +211,15 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     if functional != "PBE":
         scf_tasks.append(ScanFunctionalSetupTask())
     from mpworks.firetasks.custodian_task import get_custodian_task
-    scf_tasks.append(get_custodian_task(no_jobs_spec))
+    scf_tasks.append(get_custodian_task(scf_spec))
     scf_tasks.append(TagFileChecksumTask(["CHGCAR"]))
-    scf_vasp_fwid = cur_fwid  # Links
+    scf_vasp_fwid = cur_fwid
     cur_fwid -= 1
     vasp_fw = Firework(scf_tasks, scf_spec, name=get_slug(nick_name + '--' + scf_spec['task_type']),
                        fw_id=scf_vasp_fwid)
     fws.append(vasp_fw)
 
-    scf_db_fwid = cur_fwid  # Links
+    scf_db_fwid = cur_fwid
     cur_fwid -= 1
     scf_db_type_class = VaspToDBTask
     from mpworks.workflows.snl_to_wf_nmr import get_nmr_db_fw
@@ -235,7 +234,7 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     gen_spec['task_type'] = 'Single Kpt CS Generation'
     gen_spec['vaspinputset_name'] = gen_spec['task_type'] + " DictSet"
     gen_tasks = [ChemicalShiftKptsAverageGenerationTask()]
-    gen_fwid = cur_fwid  # Links
+    gen_fwid = cur_fwid
     cur_fwid -= 1
     gen_fw = Firework(gen_tasks, gen_spec,
                       name=get_slug(nick_name + '--' + gen_spec['task_type']),
