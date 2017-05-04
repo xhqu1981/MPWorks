@@ -390,7 +390,7 @@ class TagFileChecksumTask(FireTaskBase, FWSerializable):
         blocksize = 10 * 2 ** 20 # 10 MB
         for fn in self.files:
             with zopen(zpath(fn), 'rb') as f:
-                hash = hashlib.sha224
+                hash = hashlib.sha224()
                 for block in iter(lambda: f.read(blocksize), b""):
                     hash.update(block)
                 checksum = hash.hexdigest()
