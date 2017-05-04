@@ -474,8 +474,6 @@ class ChemicalShiftKptsAverageGenerationTask(FireTaskBase, FWSerializable):
             connections[kpt_cs_vasp_fwid] = kpt_cs_db_fwid
             db_fwids.append(kpt_cs_db_fwid)
 
-        collect_fwid = cur_fwid  # Links
-        cur_fwid -= 1
         # K-Points Average Collect
         collect_spec = copy.deepcopy(no_jobs_spec)
         collect_spec['task_type'] = 'Single Kpt CS Collect'
