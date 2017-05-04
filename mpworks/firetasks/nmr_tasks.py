@@ -390,7 +390,7 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
 
 class TagFileChecksumTask(FireTaskBase, FWSerializable):
 
-    _fw_name = "Chemical Shift K-Points Average Generation Task"
+    _fw_name = "Tag File Checksum Task"
 
     def __init__(self, files=None):
         if files is None:
