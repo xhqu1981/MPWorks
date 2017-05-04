@@ -207,6 +207,8 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     scf_spec['input_set_incar_enforce'] = {"NPAR": fw_spec['input_set_incar_enforce']["KPAR"]}
     scf_spec['task_type'] = 'Pre Kpt CS SCF'
     scf_spec['vaspinputset_name'] = scf_spec['task_type'] + " DictSet"
+    scf_spec['prev_task_type'] = fw_spec['task_type']
+    scf_spec['prev_vasp_dir'] = os.getcwd()
     scf_tasks = [DictVaspSetupTask()]
     functional = scf_spec["functional"]
     if functional != "PBE":
