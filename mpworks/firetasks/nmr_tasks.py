@@ -11,7 +11,11 @@ from fireworks.utilities.fw_serializers import FWSerializable
 from fireworks.utilities.fw_utilities import get_slug
 from monty.os.path import zpath
 from pymatgen.analysis.bond_valence import BVAnalyzer
-from pymatgen.io.vasp import Outcar, zopen, Kpoints
+from pymatgen.io.vasp import Outcar, Kpoints
+from monty.io import zopen
+import re
+import math
+from pymatgen.analysis.nmr import NMRChemicalShiftNotation
 from pymatgen.io.vasp.sets import DictSet
 
 from mpworks.dupefinders.dupefinder_vasp import DupeFinderVasp
@@ -505,8 +509,75 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
     _fw_name = "Chemical Shift K-Points Average Collect Task"
 
     def run_task(self, fw_spec):
-        pass
-
+        kpt_name_pattern = re.compile(r'kpt_#(?P<kpt_no>\d+)_weight_(?P<weight>\d+)')
+        kpt_name_weigths = []
+        for kpt_name in fw_spec.keys():
+            m = kpt_name_pattern.match(kpt_name)
+            if m:
+                kpt_weight = m.group("weight")
+                kpt_name_weigths.append([kpt_name, kpt_weight])
+        num_kpts = fw_spec["total_kpts"]
+        assert len(kpt_name_weigths) == num_kpts
+        num_atoms = len(fw_spec[kpt_name_weigths[0][0]]['chemical_shifts']['valence_only'])
+        num_ave_components = 7
+        atom_cs_weight_vo_vc = [[list() for _ in range(num_ave_components)]
+                                for _ in range(num_atoms)]
+        for i_kpt, (kpt_name, weight) in enumerate(kpt_name_weigths):
+            kpt_cs = fw_spec[kpt_name]['chemical_shifts']
+            for i_atom in range(num_atoms):
+                val_only_tensor_pas = kpt_cs['valence_only'][i_atom].mehring_values[1:4]
+                val_core_tensor_pas = kpt_cs['valence_and_core'][i_atom].mehring_values[1:4]
+                components = (float(weight),) + val_only_tensor_pas + val_core_tensor_pas
+                for i_comp in range(num_ave_components):
+                    atom_cs_weight_vo_vc[i_atom][i_comp].append(components[i_comp])
+        for i_atom in range(num_atoms):
+            for i_comp in range(num_ave_components):
+                assert len(atom_cs_weight_vo_vc[i_atom][i_comp]) == num_kpts
+        ave_pas_tensors = []
+        tensor_rmsd = []
+        for i_atom in range(num_atoms):
+            atom_ave_tensor = []
+            atom_tensor_rmsd = []
+            for i_comp in range(1, num_ave_components):
+                sum_value = sum([weight * tensor for weight, tensor
+                                 in zip(atom_cs_weight_vo_vc[i_atom][0],
+                                        atom_cs_weight_vo_vc[i_atom][i_comp])])
+                sum_weights = sum(atom_cs_weight_vo_vc[i_atom][0])
+                ave_value = sum_value / sum_weights
+                atom_ave_tensor.append(ave_value)
+                sum_square_dev = sum([weight * ((tensor - ave_value) ** 2) for weight, tensor
+                                      in zip(atom_cs_weight_vo_vc[i_atom][0],
+                                             atom_cs_weight_vo_vc[i_atom][i_comp])])
+                rmsd_value = math.sqrt(sum_square_dev / sum_weights)
+                atom_tensor_rmsd.append(rmsd_value)
+            ave_pas_tensors.append(atom_ave_tensor)
+            tensor_rmsd.append(atom_tensor_rmsd)
+        ave_tensor_notations = {"valence_only": [], 'valence_and_core': []}
+        for pas in ave_pas_tensors:
+            assert len(pas) == 6
+            for comp_indices, comp_key in [[range(0, 3), "valence_only"],
+                                           [range(3, 6), 'valence_and_core']]:
+                sigmas = [pas[i] for i in comp_indices]
+                notation = NMRChemicalShiftNotation(*sigmas)
+                ave_tensor_notations[comp_key].append(notation)
+        single_kpt_vasp_calcs = {kpt_name: fw_spec[kpt_name] for kpt_name, weight
+                                 in kpt_name_weigths}
+        cs_fields = {"chemical_shifts": ave_tensor_notations,
+                     "manual_kpt_average": fw_spec,
+                     "rmsd": tensor_rmsd,
+                     "rmsd_header": ["valence_only_11", "valence_only_22", "valence_only_33",
+                                     "valence_and_core_11", "valence_and_core_22", "valence_and_core_33"],
+                     "manual_kpt_data": {
+                         "total_kpts": fw_spec["total_kpts"],
+                         "single_kpt_vasp_calcs": single_kpt_vasp_calcs
+                     }}
+        stored_data = copy.deepcopy(cs_fields)
+        update_spec = copy.deepcopy(cs_fields)
+        update_spec['prev_task_type'] = fw_spec['task_type']
+        update_spec['prev_vasp_dir'] = fw_spec['scf_vasp_dir']
+        for k in ['scf_vasp_dir', 'functional']:
+            update_spec[k] = fw_spec[k]
+        return FWAction(stored_data=stored_data, update_spec=update_spec)
 
 class TagFileChecksumTask(FireTaskBase, FWSerializable):
 

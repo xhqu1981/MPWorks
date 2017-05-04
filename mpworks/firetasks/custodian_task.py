@@ -177,7 +177,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                        'run_tags': fw_spec['run_tags'],
                        'parameters': fw_spec.get('parameters')}
         for k in ['kpoint_tag', 'scf_vasp_dir', 'functional', 'total_kpts']:
-            update_spec[k] = fw_spec[k]
+            if k in fw_spec:
+                update_spec[k] = fw_spec[k]
 
         if dynamic_wf is None:
             return FWAction(stored_data=stored_data, update_spec=update_spec)
