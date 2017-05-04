@@ -189,6 +189,7 @@ def chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec):
     no_jobs_spec.pop('_tasks', None)
     no_jobs_spec.pop('custodian_default_input_set', None)
     no_jobs_spec.pop('prev_task_type', None)
+    no_jobs_spec.pop('prev_vasp_dir', None)
     no_jobs_spec.pop('task_type', None)
     no_jobs_spec.pop('vaspinputset_name', None)
     nick_name = no_jobs_spec['parameters']['nick_name']
