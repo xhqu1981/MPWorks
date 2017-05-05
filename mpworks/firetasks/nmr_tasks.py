@@ -279,6 +279,10 @@ class NmrVaspToDBTask(VaspToDBTask):
             update_spec[cs_kpt_name]["kpt_vasp_dir"] = prev_dir
             outcar.read_chemical_shifts()
             update_spec[cs_kpt_name]["chemical_shifts"] = outcar.data["chemical_shifts"]
+        elif prev_task_type == 'Single Kpt CS Collect':
+            for k in ['chemical_shifts', 'manual_kpt_average', 'rmsd',
+                      'rmsd_header', 'manual_kpt_data']:
+                nmr_fields = fw_spec[k]
         elif prev_task_type == "NMR EFG":
             outcar.read_nmr_efg()
             efg_fields = {"efg": outcar.data["efg"]}
