@@ -424,6 +424,7 @@ class ChemicalShiftKptsAverageGenerationTask(FireTaskBase, FWSerializable):
         priority = no_jobs_spec['_priority']
         no_jobs_spec['input_set_config_dict']['INCAR']['ISMEAR'] = 0
         no_jobs_spec['input_set_config_dict']['INCAR']['ICHARG'] = 11
+        no_jobs_spec['input_set_incar_enforce'] = {"KPAR": 1}
         no_jobs_spec['task_type'] = 'Single Kpt CS'
         no_jobs_spec['vaspinputset_name'] = no_jobs_spec['task_type'] + " DictSet"
         no_jobs_spec["scf_vasp_dir"] = fw_spec['prev_vasp_dir']
