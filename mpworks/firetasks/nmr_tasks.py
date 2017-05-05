@@ -360,7 +360,7 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
             vis.poscar.write_file("POSCAR")
         if "POTCAR" in self.files:
             vis.potcar.write_file("POTCAR")
-        if "KOINTS" in self.files:
+        if "KPOINTS" in self.files:
             if "kpoints_enforce" not in fw_spec:
                 vis.kpoints.write_file("KPOINTS")
             else:
