@@ -155,7 +155,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
                     cus_ex = ex
         dynamic_wf = None
         if cus_ex is not None:
-            if self._is_kpts_parallel_chemical_shift_eligible(fw_spec):
+            if os.path.exists("std_err.txt") and \
+                    self._is_kpts_parallel_chemical_shift_eligible(fw_spec):
                 from mpworks.firetasks.nmr_tasks import chemical_shift_spec_to_dynamic_kpt_average_wfs
                 dynamic_wf = chemical_shift_spec_to_dynamic_kpt_average_wfs(fw_spec)
             else:
