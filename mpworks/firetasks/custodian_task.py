@@ -190,8 +190,8 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
     def _is_kpts_parallel_chemical_shift_eligible(self, fw_spec):
         if fw_spec['task_type'] == "NMR CS":
             eh = StdErrHandler(output_filename="std_err.txt")
-            errors = eh.check()["errors"]
-            if set(errors) & {'out_of_memory', 'seg_fault'}:
+            eh.check()
+            if set(eh.errors) & {'out_of_memory', 'seg_fault'}:
                 return True
         return False
 
