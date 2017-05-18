@@ -433,7 +433,7 @@ class ChemicalShiftKptsAverageGenerationTask(FireTaskBase, FWSerializable):
         connections = dict()
         db_fwids = []
         cur_fwid = -1
-        prev_dir = fw_spec['prev_vasp_dir']
+        prev_dir = get_loc(fw_spec['prev_vasp_dir'])
         scf_kpoint_filename = zpath(os.path.join(prev_dir, 'IBZKPT'))
         whole_kpts = Kpoints.from_file(scf_kpoint_filename)
         no_jobs_spec['total_kpts'] = len(whole_kpts.kpts)
