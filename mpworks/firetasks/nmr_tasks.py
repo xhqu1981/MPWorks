@@ -607,7 +607,7 @@ class TagFileChecksumTask(FireTaskBase, FWSerializable):
                                       "value": checksum}
             with open("checksum.{}.{}".format(fn, checksum[:10]), "w") as f:
                 f.write("sha224")
-        stored_data = {"file_chechsum": file_checksums}
+        stored_data = {"file_checksum": file_checksums}
         return FWAction(stored_data=stored_data)
 
 
