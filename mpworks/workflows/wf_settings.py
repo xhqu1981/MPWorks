@@ -1,3 +1,5 @@
+import os
+
 from monty.design_patterns import singleton
 
 __author__ = 'Anubhav Jain'
@@ -23,7 +25,10 @@ class WFSettings(object):
     def __init__(self):
         self.MOVE_TO_GARDEN_DEV = False
         self.MOVE_TO_GARDEN_PROD = False
-        self.GARDEN = '/project/projectdirs/matgen/garden'
+        if "GARDEN_LOC" in os.environ:
+            self.GARDEN = os.environ["GARDEN_LOC"]
+        else:
+            self.GARDEN = '/project/projectdirs/matgen/garden'
 
     @property
     def RUN_LOCS(self):
@@ -36,6 +41,5 @@ class WFSettings(object):
                 '/global/scratch/sd/matcomp/wc_tests/',
                 '/global/scratch/sd/matcomp/aj_prod/',
                 '/global/scratch2/sd/matcomp/mp_prod/',
-                '/global/scratch2/sd/matcomp/mp_prod_hopper/',
-                '/project/projectdirs/matgen/garden/nmr']
+                '/global/scratch2/sd/matcomp/mp_prod_hopper/']
 
