@@ -583,7 +583,7 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
         single_kpt_vasp_calcs = {kpt_name: fw_spec[kpt_name] for kpt_name, weight
                                  in kpt_name_weigths}
         cs_fields = {"chemical_shifts": ave_tensor_notations,
-                     "manual_kpt_average": fw_spec,
+                     "manual_kpt_average": True,
                      "rmsd": tensor_rmsd,
                      "rmsd_header": ["valence_only_11", "valence_only_22", "valence_only_33",
                                      "valence_and_core_11", "valence_and_core_22", "valence_and_core_33"],
