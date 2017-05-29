@@ -282,7 +282,7 @@ class NmrVaspToDBTask(VaspToDBTask):
         elif prev_task_type == 'Single Kpt CS Collect':
             for k in ['chemical_shifts', 'manual_kpt_average', 'rmsd',
                       'rmsd_header', 'manual_kpt_data']:
-                nmr_fields = fw_spec[k]
+                nmr_fields[k] = fw_spec[k]
             sub_dir_name = "fake_nmr_vasp_files"
             shutil.copytree(prev_dir, sub_dir_name)
             for fn in ["CHGCAR", "CHGCAR.gz"]:
