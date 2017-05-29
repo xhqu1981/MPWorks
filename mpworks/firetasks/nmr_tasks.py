@@ -283,6 +283,14 @@ class NmrVaspToDBTask(VaspToDBTask):
             for k in ['chemical_shifts', 'manual_kpt_average', 'rmsd',
                       'rmsd_header', 'manual_kpt_data']:
                 nmr_fields = fw_spec[k]
+            shutil.copytree(prev_dir, "fake_nmr_vasp_files")
+            fake_prev_dir = os.path.abspath("fake_nmr_vasp_files")
+            fw_spec['prev_vasp_dir'] = fake_prev_dir
+            with zopen(zpath(os.path.join(fake_prev_dir, 'FW.json')), 'rt') as f:
+                fw_dict = json.load(f)
+            fw_dict["prev_task_type"] = "NMR CS"
+            with zopen(zpath(os.path.join(fake_prev_dir, 'FW.json')), 'wt') as f:
+                json.dump(fw_dict, f, sort_keys=True, indent=4)
         elif prev_task_type == "NMR EFG":
             outcar.read_nmr_efg()
             efg_fields = {"efg": outcar.data["efg"]}
