@@ -530,8 +530,10 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
         for i_kpt, (kpt_name, weight) in enumerate(kpt_name_weigths):
             kpt_cs = fw_spec[kpt_name]['chemical_shifts']
             for i_atom in range(num_atoms):
-                val_only_tensor_pas = kpt_cs['valence_only'][i_atom].mehring_values[1:4]
-                val_core_tensor_pas = kpt_cs['valence_and_core'][i_atom].mehring_values[1:4]
+                vo_tensor_notation = NMRChemicalShiftNotation.from_dict(kpt_cs['valence_only'][i_atom])
+                vc_tensor_notation = NMRChemicalShiftNotation.from_dict(kpt_cs['valence_and_core'][i_atom])
+                val_only_tensor_pas = vo_tensor_notation.mehring_values[1:4]
+                val_core_tensor_pas = vc_tensor_notation.mehring_values[1:4]
                 components = (float(weight),) + val_only_tensor_pas + val_core_tensor_pas
                 for i_comp in range(num_ave_components):
                     atom_cs_weight_vo_vc[i_atom][i_comp].append(components[i_comp])
@@ -564,7 +566,7 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
                                            [range(3, 6), 'valence_and_core']]:
                 sigmas = [pas[i] for i in comp_indices]
                 notation = NMRChemicalShiftNotation(*sigmas)
-                ave_tensor_notations[comp_key].append(notation)
+                ave_tensor_notations[comp_key].append(notation.as_dict())
         single_kpt_vasp_calcs = {kpt_name: fw_spec[kpt_name] for kpt_name, weight
                                  in kpt_name_weigths}
         cs_fields = {"chemical_shifts": ave_tensor_notations,
