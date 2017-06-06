@@ -23,6 +23,7 @@ CS:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    F: F_h
     Na: Na_sv
     Al: Al
     Si: Si_h
@@ -137,6 +138,7 @@ EFG:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    F: F_h
     Na: Na_sv
     Al: Al
     Si: Si_h

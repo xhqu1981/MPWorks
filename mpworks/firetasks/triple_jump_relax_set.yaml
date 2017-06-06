@@ -23,6 +23,7 @@ STEP1:
     H: H
     Mg: Mg
     O: O
+    F: F
     Na: Na
     Al: Al
     Si: Si
@@ -61,6 +62,7 @@ STEP2:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    F: F_h
     Na: Na_sv
     Al: Al
     Si: Si_h
@@ -103,6 +105,7 @@ STEP3:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    F: F_h
     Na: Na_sv
     Al: Al
     Si: Si_h
