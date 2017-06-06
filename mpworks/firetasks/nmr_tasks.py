@@ -36,6 +36,8 @@ __date__ = 'May 31, 2016'
 This is modified from Wei Chen & Joseph Montoya's elastic_tasks.
 """
 
+tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb", "Tm"}
+di_val_elements = {"Er", "Eu", "Yb"}
 
 def _get_nuclear_quadrupole_moment(element, nqm_dict, parameters):
     if element not in nqm_dict:
@@ -103,8 +105,6 @@ def _change_garden_setting():
 
 
 def _assign_potcar_valence(structure, potcar_dict):
-    tri_val_elements = {"Ce", "Dy", "Er", "Eu", "Gd", "Ho", "Lu", "Nd", "Pm", "Pr", "Sm", "Tb", "Tm"}
-    di_val_elements = {"Er", "Eu", "Yb"}
     st_elements = set([specie.symbol for specie in structure.species])
     bva = BVAnalyzer()
     valences = bva.get_valences(structure)
@@ -153,7 +153,9 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
         incar_enforce = {'NPAR': par_num}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
-    _assign_potcar_valence(structure, config_dict["POTCAR"])
+    if set([sp.symbol for sp in structure.species]) & \
+            (tri_val_elements | di_val_elements):
+        _assign_potcar_valence(structure, config_dict["POTCAR"])
 
     mpvis = _config_dict_to_input_set(config_dict, structure,
                                       incar_enforce, parameters=parameters)
