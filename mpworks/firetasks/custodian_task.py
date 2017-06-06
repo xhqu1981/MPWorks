@@ -134,25 +134,25 @@ class VaspCustodianTask(FireTaskBase, FWSerializable):
 
         error_list = []
         cus_ex = None
+
+        if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
+            try:
+                logging.info("Initiate VASP calculations using alternate binaries")
+                all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
+                                                    fw_env.get("vasp_cmd", "vasp"),
+                                                    fw_env.get("gvasp_cmd", "gvasp"),
+                                                    fw_env["alt_cmds"][fw_spec['task_type']],
+                                                    fw_env.get("input_rewind", True),
+                                                    fw_spec['mpsnl'].structure)
+                error_list.extend(all_errors)
+            except Exception as ex:
+                cus_ex = ex
         try:
             all_errors = self._run_custodian(terminate_func)
             error_list.extend(all_errors)
         except Exception as ex:
             cus_ex = ex
-        if cus_ex is not None:
-            if "alt_cmds" in fw_env and fw_spec['task_type'] in fw_env["alt_cmds"]:
-                cus_ex = None
-                try:
-                    logging.info("Initiate VASP calculations using alternate binaries")
-                    all_errors = self._run_alt_vasp_cmd(terminate_func, v_exe, gv_exe,
-                                                        fw_env.get("vasp_cmd", "vasp"),
-                                                        fw_env.get("gvasp_cmd", "gvasp"),
-                                                        fw_env["alt_cmds"][fw_spec['task_type']],
-                                                        fw_env.get("input_rewind", True),
-                                                        fw_spec['mpsnl'].structure)
-                    error_list.extend(all_errors)
-                except Exception as ex:
-                    cus_ex = ex
+
         dynamic_wf = None
         if cus_ex is not None:
             if os.path.exists("std_err.txt") and \
