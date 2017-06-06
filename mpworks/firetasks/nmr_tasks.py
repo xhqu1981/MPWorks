@@ -284,7 +284,20 @@ class NmrVaspToDBTask(VaspToDBTask):
         elif prev_task_type == 'Single Kpt CS Collect':
             for k in ['chemical_shifts', 'manual_kpt_average', 'rmsd',
                       'rmsd_header', 'manual_kpt_data']:
-                nmr_fields = fw_spec[k]
+                nmr_fields[k] = fw_spec[k]
+            sub_dir_name = "fake_nmr_vasp_files"
+            shutil.copytree(prev_dir, sub_dir_name)
+            for fn in ["CHGCAR", "CHGCAR.gz"]:
+                ffn = os.path.join(sub_dir_name, fn)
+                if os.path.exists(ffn):
+                    os.remove(ffn)
+            fake_prev_dir = os.path.abspath(sub_dir_name)
+            fw_spec['prev_vasp_dir'] = fake_prev_dir
+            with zopen(zpath(os.path.join(fake_prev_dir, 'FW.json')), 'rt') as f:
+                fw_dict = json.load(f)
+            fw_dict["spec"]["task_type"] = "NMR CS"
+            with zopen(zpath(os.path.join(fake_prev_dir, 'FW.json')), 'wt') as f:
+                json.dump(fw_dict, f, sort_keys=True, indent=4)
         elif prev_task_type == "NMR EFG":
             outcar.read_nmr_efg()
             efg_fields = {"efg": outcar.data["efg"]}
@@ -532,8 +545,10 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
         for i_kpt, (kpt_name, weight) in enumerate(kpt_name_weigths):
             kpt_cs = fw_spec[kpt_name]['chemical_shifts']
             for i_atom in range(num_atoms):
-                val_only_tensor_pas = kpt_cs['valence_only'][i_atom].mehring_values[1:4]
-                val_core_tensor_pas = kpt_cs['valence_and_core'][i_atom].mehring_values[1:4]
+                vo_tensor_notation = NMRChemicalShiftNotation.from_dict(kpt_cs['valence_only'][i_atom])
+                vc_tensor_notation = NMRChemicalShiftNotation.from_dict(kpt_cs['valence_and_core'][i_atom])
+                val_only_tensor_pas = vo_tensor_notation.mehring_values[1:4]
+                val_core_tensor_pas = vc_tensor_notation.mehring_values[1:4]
                 components = (float(weight),) + val_only_tensor_pas + val_core_tensor_pas
                 for i_comp in range(num_ave_components):
                     atom_cs_weight_vo_vc[i_atom][i_comp].append(components[i_comp])
@@ -566,11 +581,11 @@ class ChemicalShiftKptsAverageCollectTask(FireTaskBase, FWSerializable):
                                            [range(3, 6), 'valence_and_core']]:
                 sigmas = [pas[i] for i in comp_indices]
                 notation = NMRChemicalShiftNotation(*sigmas)
-                ave_tensor_notations[comp_key].append(notation)
+                ave_tensor_notations[comp_key].append(notation.as_dict())
         single_kpt_vasp_calcs = {kpt_name: fw_spec[kpt_name] for kpt_name, weight
                                  in kpt_name_weigths}
         cs_fields = {"chemical_shifts": ave_tensor_notations,
-                     "manual_kpt_average": fw_spec,
+                     "manual_kpt_average": True,
                      "rmsd": tensor_rmsd,
                      "rmsd_header": ["valence_only_11", "valence_only_22", "valence_only_33",
                                      "valence_and_core_11", "valence_and_core_22", "valence_and_core_33"],
