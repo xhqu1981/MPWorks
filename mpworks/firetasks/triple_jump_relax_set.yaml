@@ -33,6 +33,12 @@ STEP1:
     Ca: Ca_pv
     Y: Y_sv
     Gd: Gd
+    Be: Be_sv
+    Fe: Fe_sv
+    Ge: Ge_d
+    Li: Li_sv
+    S: S
+    Zn: Zn_pv
 
 STEP2:
   INCAR:
@@ -72,6 +78,12 @@ STEP2:
     Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
+    Be: Be_sv
+    Fe: Fe_sv_h
+    Ge: Ge_h
+    Li: Li_sv
+    S: S_h
+    Zn: Zn_pv
 
 STEP3:
   INCAR:
@@ -115,6 +127,12 @@ STEP3:
     Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
+    Be: Be_sv
+    Fe: Fe_sv_h
+    Ge: Ge_h
+    Li: Li_sv
+    S: S_h
+    Zn: Zn_pv
 
 STEP_DYNA3:
   INCAR:

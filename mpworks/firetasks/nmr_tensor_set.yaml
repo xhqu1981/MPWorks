@@ -33,6 +33,12 @@ CS:
     Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
+    Be: Be_sv
+    Fe: Fe_sv_h
+    Ge: Ge_h
+    Li: Li_sv
+    S: S_h
+    Zn: Zn_pv
 
 EFG:
   INCAR:
@@ -148,3 +154,9 @@ EFG:
     Ca: Ca_sv
     Y: Y_sv
     Gd: Gd
+    Be: Be_sv
+    Fe: Fe_sv_h
+    Ge: Ge_h
+    Li: Li_sv
+    S: S_h
+    Zn: Zn_pv
