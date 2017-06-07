@@ -153,9 +153,12 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
         incar_enforce = {'NPAR': par_num}
     spec['run_tags'] = spec.get('run_tags', [])
     spec['run_tags'].extend(additional_run_tags)
-    if set([sp.symbol for sp in structure.species]) & \
+    elements_in_structure = set([sp.symbol for sp in structure.species])
+    if elements_in_structure & \
             (tri_val_elements | di_val_elements):
         _assign_potcar_valence(structure, config_dict["POTCAR"])
+    print(elements_in_structure, set(config_dict["POTCAR"].keys()))
+    assert elements_in_structure <= set(config_dict["POTCAR"].keys())
 
     mpvis = _config_dict_to_input_set(config_dict, structure,
                                       incar_enforce, parameters=parameters)
