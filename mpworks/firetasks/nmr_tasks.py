@@ -158,7 +158,7 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
             (tri_val_elements | di_val_elements):
         _assign_potcar_valence(structure, config_dict["POTCAR"])
     if not elements_in_structure <= set(config_dict["POTCAR"].keys()):
-        missing_elements = set(config_dict["POTCAR"].keys()) - elements_in_structure
+        missing_elements = elements_in_structure - set(config_dict["POTCAR"].keys())
         raise ValueError("Element {} is not available in config dict".format(missing_elements))
 
     mpvis = _config_dict_to_input_set(config_dict, structure,
