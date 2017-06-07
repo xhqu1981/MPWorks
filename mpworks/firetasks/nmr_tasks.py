@@ -157,7 +157,6 @@ def snl_to_nmr_spec(structure, istep_triple_jump, parameters=None, additional_ru
     if elements_in_structure & \
             (tri_val_elements | di_val_elements):
         _assign_potcar_valence(structure, config_dict["POTCAR"])
-    print(elements_in_structure, set(config_dict["POTCAR"].keys()))
     assert elements_in_structure <= set(config_dict["POTCAR"].keys())
 
     mpvis = _config_dict_to_input_set(config_dict, structure,
