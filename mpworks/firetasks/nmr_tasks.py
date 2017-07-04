@@ -367,7 +367,8 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
 
     @staticmethod
     def _reorder_nqm(vis, parameters):
-        old_quad_efg_set = set(vis.incar["QUAD_EFG"])
+        incar = vis.incar
+        old_quad_efg_set = set(incar["QUAD_EFG"])
         module_dir = os.path.abspath(os.path.dirname(__file__))
         config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
         with open(config_file) as f:
@@ -375,8 +376,9 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         nqm_map = parent_config_dict["EFG"]["INCAR"]["QUAD_EFG_MAP"]
         all_elements = [sp.element for sp in vis.potcar]
         quad_efg = [_get_nuclear_quadrupole_moment(el, nqm_map, parameters) for el in all_elements]
-        vis.incar["QUAD_EFG"] = quad_efg
-        assert old_quad_efg_set == set(vis.incar["QUAD_EFG"])
+        incar["QUAD_EFG"] = quad_efg
+        assert old_quad_efg_set == set(incar["QUAD_EFG"])
+        return incar
 
     def run_task(self, fw_spec):
         config_dict = fw_spec["input_set_config_dict"]
@@ -387,9 +389,10 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
                       user_incar_settings=incar_enforce,
                       sort_structure=False)
         if "INCAR" in self.files:
+            incar = vis.incar
             if fw_spec["task_type"] == "NMR EFG":
-                self._reorder_nqm(vis, fw_spec["parameters"])
-            vis.incar.write_file("INCAR")
+                incar = self._reorder_nqm(vis, fw_spec["parameters"])
+            incar.write_file("INCAR")
         if "POSCAR" in self.files:
             vis.poscar.write_file("POSCAR")
         if "POTCAR" in self.files:
