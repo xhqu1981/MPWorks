@@ -365,6 +365,19 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         structure = structure.get_sorted_structure(key=lambda site: enmax_dict[site.specie.symbol], reverse=True)
         return structure
 
+    @staticmethod
+    def reorder_nqm(vis, parameters):
+        old_quad_efg_set = set(vis.incar["QUAD_EFG"])
+        module_dir = os.path.abspath(os.path.dirname(__file__))
+        config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
+        with open(config_file) as f:
+            parent_config_dict = yaml.load(stream=f)
+        nqm_map = parent_config_dict["EFG"]["INCAR"]["QUAD_EFG_MAP"]
+        all_elements = [sp.element for sp in vis.potcar]
+        quad_efg = [_get_nuclear_quadrupole_moment(el, nqm_map, parameters) for el in all_elements]
+        vis.incar["QUAD_EFG"] = quad_efg
+        assert old_quad_efg_set == set(vis.incar["QUAD_EFG"])
+
     def run_task(self, fw_spec):
         config_dict = fw_spec["input_set_config_dict"]
         incar_enforce = fw_spec["input_set_incar_enforce"]
@@ -374,6 +387,8 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
                       user_incar_settings=incar_enforce,
                       sort_structure=False)
         if "INCAR" in self.files:
+            if fw_spec["task_type"] == "NMR EFG":
+                self.reorder_nqm(vis, fw_spec["parameters"])
             vis.incar.write_file("INCAR")
         if "POSCAR" in self.files:
             vis.poscar.write_file("POSCAR")
