@@ -366,7 +366,7 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
         return structure
 
     @staticmethod
-    def reorder_nqm(vis, parameters):
+    def _reorder_nqm(vis, parameters):
         old_quad_efg_set = set(vis.incar["QUAD_EFG"])
         module_dir = os.path.abspath(os.path.dirname(__file__))
         config_file = os.path.join(module_dir, "nmr_tensor_set.yaml")
@@ -388,7 +388,7 @@ class DictVaspSetupTask(FireTaskBase, FWSerializable):
                       sort_structure=False)
         if "INCAR" in self.files:
             if fw_spec["task_type"] == "NMR EFG":
-                self.reorder_nqm(vis, fw_spec["parameters"])
+                self._reorder_nqm(vis, fw_spec["parameters"])
             vis.incar.write_file("INCAR")
         if "POSCAR" in self.files:
             vis.poscar.write_file("POSCAR")
