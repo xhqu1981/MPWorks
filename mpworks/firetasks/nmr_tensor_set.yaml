@@ -23,6 +23,7 @@ CS:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    N: N_h
     F: F_h
     Na: Na_sv
     Al: Al
@@ -39,6 +40,11 @@ CS:
     Li: Li_sv
     S: S_h
     Zn: Zn_pv
+    Ti: Ti_sv_h
+    Zr: Zr_sv_new
+    Sr: Sr_sv
+    Ba: Ba_sv
+    La: La
 
 EFG:
   INCAR:
@@ -144,6 +150,7 @@ EFG:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    N: N_h
     F: F_h
     Na: Na_sv
     Al: Al
@@ -160,3 +167,8 @@ EFG:
     Li: Li_sv
     S: S_h
     Zn: Zn_pv
+    Ti: Ti_sv_h
+    Zr: Zr_sv_new
+    Sr: Sr_sv
+    Ba: Ba_sv
+    La: La

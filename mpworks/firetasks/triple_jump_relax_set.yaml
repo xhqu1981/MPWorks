@@ -23,6 +23,7 @@ STEP1:
     H: H
     Mg: Mg
     O: O
+    N: N
     F: F
     Na: Na
     Al: Al
@@ -39,6 +40,11 @@ STEP1:
     Li: Li_sv
     S: S
     Zn: Zn_pv
+    Ti: Ti_sv_new
+    Zr: Zr_sv_new
+    Sr: Sr_sv
+    Ba: Ba_sv
+    La: La
 
 STEP2:
   INCAR:
@@ -68,6 +74,7 @@ STEP2:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    N: N_h
     F: F_h
     Na: Na_sv
     Al: Al
@@ -84,6 +91,11 @@ STEP2:
     Li: Li_sv
     S: S_h
     Zn: Zn_pv
+    Ti: Ti_sv_h
+    Zr: Zr_sv_new
+    Sr: Sr_sv
+    Ba: Ba_sv
+    La: La
 
 STEP3:
   INCAR:
@@ -117,6 +129,7 @@ STEP3:
     H: H_h
     Mg: Mg_sv
     O: O_h
+    N: N_h
     F: F_h
     Na: Na_sv
     Al: Al
@@ -133,6 +146,11 @@ STEP3:
     Li: Li_sv
     S: S_h
     Zn: Zn_pv
+    Ti: Ti_sv_h
+    Zr: Zr_sv_new
+    Sr: Sr_sv
+    Ba: Ba_sv
+    La: La
 
 STEP_DYNA3:
   INCAR:
