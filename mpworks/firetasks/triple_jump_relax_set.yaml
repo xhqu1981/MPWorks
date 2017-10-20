@@ -45,6 +45,9 @@ STEP1:
     Sr: Sr_sv
     Ba: Ba_sv
     La: La
+    In: In_d
+    B: B
+    Pb: Pb_d
 
 STEP2:
   INCAR:
@@ -96,6 +99,9 @@ STEP2:
     Sr: Sr_sv
     Ba: Ba_sv
     La: La
+    In: In_d
+    B: B_h
+    Pb: Pb_d
 
 STEP3:
   INCAR:
@@ -151,6 +157,9 @@ STEP3:
     Sr: Sr_sv
     Ba: Ba_sv
     La: La
+    In: In_d
+    B: B_h
+    Pb: Pb_d
 
 STEP_DYNA3:
   INCAR:
